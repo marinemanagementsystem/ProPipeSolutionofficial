@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #060a18;
+  --panel: #0c1226;
+  --text: #e2e8f0;
+}
+
+* { @apply box-border; }
+
+body {
+  font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(1000px 1000px at 10% 10%, rgba(56, 189, 248, 0.08), transparent),
+    radial-gradient(900px 900px at 80% 10%, rgba(139, 92, 246, 0.08), transparent),
+    radial-gradient(700px 700px at 40% 90%, rgba(34, 197, 94, 0.06), transparent),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a { @apply no-underline text-inherit; }
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.panel { @apply bg-slate-900/80 border border-white/10 shadow-2xl shadow-black/40; }
+.pill { @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border border-white/10; }
+.chip { @apply inline-flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold border border-white/10; }
+.input { @apply w-full px-3 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-400; }
+.table { @apply w-full text-sm border-collapse; }
+.table th { @apply text-left uppercase tracking-[0.14em] text-slate-400 border-b border-white/10 py-3 px-3; }
+.table td { @apply py-3 px-3 text-white; }
+.nav { @apply flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 border border-transparent; }
+.nav.active { @apply bg-white/5 border-white/10 text-white; }
+.card { @apply flex items-center gap-3 panel rounded-2xl p-5; }
+.icon { @apply w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg; }
+.label { @apply text-xs uppercase tracking-[0.18em] text-slate-400; }
+.title { @apply text-lg font-bold text-white; }
+
+.badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}

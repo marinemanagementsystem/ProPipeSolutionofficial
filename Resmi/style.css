@@ -1,0 +1,1969 @@
+:root {
+    /* Logo-Inspired Colors */
+    --logo-blue-dark: #0B63B4;  /* Darker blue from logo */
+    --logo-blue-light: #3B8DED; /* Lighter blue from logo gradient */
+    --logo-blue-text: #6FB1FC; /* Light blue from 'Solution' text */
+    --pipe-grey: #88929a;     /* Grey from pipe */
+    --white: #ffffff;
+    --off-white: #f8f9fa;
+    --dark-grey: #343a40;
+    --light-grey: #adb5bd;
+
+    /* Light Theme */
+    --bg-color-light: #f4f7ff;
+    --bg-gradient-light: linear-gradient(135deg, #f9fbff 0%, #e9f1ff 100%);
+    --text-color-light: #1f2a3d;
+    --primary-color-light: var(--logo-blue-dark);
+    --secondary-color-light: var(--logo-blue-light);
+    --accent-color-light: rgba(11, 99, 180, 0.06);
+    --gradient-start-light: var(--logo-blue-dark);
+    --gradient-end-light: var(--logo-blue-light);
+    --card-bg-light: #ffffff;
+    --border-color-light: rgba(11, 99, 180, 0.12);
+    --heading-color-light: #0a3664;
+    --link-hover-light: #0e6fd4;
+
+    /* Dark Theme */
+    --bg-color-dark: #050b18; /* Deep navy */
+    --bg-gradient-dark:
+        radial-gradient(1000px 1000px at 8% 12%, rgba(59, 141, 237, 0.12), transparent),
+        radial-gradient(900px 900px at 82% 8%, rgba(111, 177, 252, 0.12), transparent),
+        radial-gradient(700px 700px at 72% 88%, rgba(11, 99, 180, 0.14), transparent),
+        #040915;
+    --text-color-dark: #cfd7ec; /* Softer light text */
+    --primary-color-dark: #6fb1fc; /* Brighter blue for highlights */
+    --secondary-color-dark: #3b8ded;
+    --accent-color-dark: rgba(255, 255, 255, 0.04);
+    --gradient-start-dark: #3b8ded;
+    --gradient-end-dark: #0b63b4;
+    --card-bg-dark: rgba(12, 18, 38, 0.82); /* Glassy card */
+    --border-color-dark: rgba(111, 177, 252, 0.18);
+    --heading-color-dark: #e9f3ff; /* Clean white-blue heading */
+    --link-hover-dark: #9cc9ff;
+
+    /* Default Theme (Light) - Applied via body tag now */
+    --bg-color: var(--bg-color-light);
+    --bg-gradient: var(--bg-gradient-light);
+    --text-color: var(--text-color-light);
+    --primary-color: var(--primary-color-light);
+    --secondary-color: var(--secondary-color-light);
+    --accent-color: var(--accent-color-light);
+    --gradient-start: var(--gradient-start-light);
+    --gradient-end: var(--gradient-end-light);
+    --card-bg: var(--card-bg-light);
+    --border-color: var(--border-color-light);
+    --heading-color: var(--heading-color-light);
+    --link-hover: var(--link-hover-light);
+
+    --font-primary: 'Sora', 'Poppins', sans-serif;
+    --font-secondary: 'Inter', 'Roboto', sans-serif;
+
+    --container-width: 1140px;
+    --transition-speed: 0.3s ease;
+    --glass-border: rgba(111, 177, 252, 0.18);
+    --panel-shadow: 0 18px 55px rgba(5, 11, 24, 0.35);
+}
+
+/* Apply Dark Theme */
+body.dark-theme {
+    --bg-color: var(--bg-color-dark);
+    --bg-gradient: var(--bg-gradient-dark);
+    --text-color: var(--text-color-dark);
+    --primary-color: var(--primary-color-dark);
+    --secondary-color: var(--secondary-color-dark);
+    --accent-color: var(--accent-color-dark);
+    --gradient-start: var(--gradient-start-dark);
+    --gradient-end: var(--gradient-end-dark);
+    --card-bg: var(--card-bg-dark);
+    --border-color: var(--border-color-dark);
+    --heading-color: var(--heading-color-dark);
+    --link-hover: var(--link-hover-dark);
+}
+
+/* Global Styles */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px; /* Base font size */
+}
+
+body {
+    font-family: var(--font-secondary);
+    color: var(--text-color);
+    position: relative;
+    background:
+        radial-gradient(1100px 900px at 12% 20%, rgba(59, 141, 237, 0.12), transparent),
+        radial-gradient(800px 800px at 82% 12%, rgba(111, 177, 252, 0.12), transparent),
+        radial-gradient(900px 900px at 60% 85%, rgba(11, 99, 180, 0.12), transparent),
+        var(--bg-color);
+    line-height: 1.6;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 140px 140px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+header, main, footer {
+    position: relative;
+    z-index: 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    color: var(--heading-color);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+h1 { font-size: 3rem; }
+h2 { font-size: 2.5rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.1rem; }
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--transition-speed);
+}
+
+a:hover {
+    color: var(--link-hover);
+    text-decoration: none; /* Often looks cleaner */
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Remove bottom space */
+}
+
+ul {
+    list-style: none;
+}
+
+.container {
+    width: 90%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+section {
+    padding: 80px 0;
+    overflow: hidden; /* contain floats and margins */
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+}
+
+/* Utility Classes */
+.text-gradient {
+    /* Updated gradient using logo colors */
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    display: inline-block; /* Needed for gradient */
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px; /* Pill shape */
+    font-weight: 600;
+    transition: all var(--transition-speed);
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    font-size: 1rem;
+    font-family: var(--font-primary);
+    margin: 5px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.btn-primary {
+    background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    box-shadow: 0 10px 28px rgba(11, 99, 180, 0.25), 0 10px 45px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(120deg, var(--secondary-color), var(--primary-color));
+    color: #fff;
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 16px 40px rgba(11, 99, 180, 0.3), 0 10px 45px rgba(0, 0, 0, 0.3);
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--primary-color);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 12px 32px rgba(11, 99, 180, 0.12);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 14px 36px rgba(11, 99, 180, 0.22);
+}
+
+.section-subtitle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    background: linear-gradient(120deg, rgba(11, 99, 180, 0.12), rgba(111, 177, 252, 0.1));
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 14px 32px rgba(11, 99, 180, 0.15);
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 2.4rem;
+    letter-spacing: -0.5px;
+}
+
+body.dark-theme .section-subtitle {
+    color: var(--heading-color-dark);
+    background: linear-gradient(120deg, rgba(59, 141, 237, 0.16), rgba(111, 177, 252, 0.08));
+    border-color: rgba(111, 177, 252, 0.25);
+}
+
+/* Header Styles */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(90deg, rgba(5, 11, 24, 0.96), rgba(5, 11, 24, 0.88));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--panel-shadow);
+    z-index: 1000;
+    padding: 18px 0;
+    transition: all 0.4s ease;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+body.dark-theme header {
+    background: linear-gradient(90deg, rgba(5, 11, 24, 0.95), rgba(5, 11, 24, 0.9));
+    box-shadow: var(--panel-shadow);
+}
+
+body:not(.dark-theme) header {
+    background: linear-gradient(90deg, rgba(5, 11, 24, 0.94), rgba(5, 11, 24, 0.88));
+    border-bottom: 1px solid rgba(11, 99, 180, 0.35);
+    box-shadow: 0 16px 36px rgba(5, 11, 24, 0.4);
+}
+
+header.scrolled {
+    padding: 15px 0;
+    background: linear-gradient(90deg, rgba(5, 11, 24, 0.98), rgba(5, 11, 24, 0.92));
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+body:not(.dark-theme) header.scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 12px 32px rgba(11, 99, 180, 0.12);
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+    position: relative;
+    margin-right: 5rem; /* Increased margin to push navigation further */
+}
+
+header .logo img {
+    height: 45px;
+    transition: all 0.3s ease;
+    margin-right: 12px;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+body.dark-theme header .logo img {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* New wrapper for logo text */
+.logo-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center lines horizontally */
+    line-height: 1.1; /* Adjust line height */
+}
+
+/* Style for the first line */
+.logo-text-line1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--heading-color-dark);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+/* Style for the second line */
+.logo-text-line2 {
+    font-size: 1.1rem; /* Slightly smaller */
+    font-weight: 600;
+    color: var(--heading-color-dark);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+body:not(.dark-theme) .logo-text-line1,
+body:not(.dark-theme) .logo-text-line2 {
+    color: #d8e8ff; /* Keep legible on dark header even in light theme */
+}
+
+header .logo:hover img {
+    transform: scale(1.05);
+}
+
+/* Hide logo text on smaller screens */
+@media (max-width: 768px) {
+    .logo-text-wrapper {
+        display: none;
+    }
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+}
+
+header nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+header nav ul li {
+    margin-left: 3.2rem; /* Further increased spacing */
+}
+
+header nav ul li a {
+    color: rgba(233, 243, 255, 0.9);
+    font-weight: 600;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: color 0.3s ease;
+    font-size: 0.95rem; /* Slightly reduced size */
+    text-decoration: none;
+    display: block;
+    letter-spacing: 0.8px; /* Increased letter spacing */
+    text-transform: uppercase;
+}
+
+body:not(.dark-theme) header nav ul li a {
+    color: rgba(233, 243, 255, 0.9);
+}
+
+header nav ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+header nav ul li a:hover,
+header nav ul li a.active {
+    color: var(--primary-color-dark);
+}
+
+header nav ul li a:hover::after,
+header nav ul li a.active::after {
+    width: 100%;
+}
+
+/* Theme Toggle Button */
+#theme-toggle {
+    background: none;
+    border: none;
+    color: rgba(233, 243, 255, 0.9);
+    font-size: 1.3rem;
+    cursor: pointer;
+    margin-left: 1.5rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+    padding: 0.5rem;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body:not(.dark-theme) #theme-toggle {
+    color: rgba(233, 243, 255, 0.9);
+}
+
+#theme-toggle:hover {
+    color: var(--primary-color);
+    transform: rotate(15deg);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body:not(.dark-theme) #theme-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Burger Menu Button - Hidden by default on desktop */
+.burger-menu {
+    display: none;
+    background: none;
+    border: none;
+    color: rgba(233, 243, 255, 0.9);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0.5rem;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+}
+
+body:not(.dark-theme) .burger-menu {
+    color: var(--heading-color);
+}
+
+.burger-menu:hover {
+    color: var(--primary-color);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body:not(.dark-theme) .burger-menu:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Hero Section */
+#anasayfa {
+    padding-top: 190px;
+    padding-bottom: 140px;
+    min-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-gradient-dark);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    color: var(--heading-color-dark);
+}
+
+#anasayfa::before {
+    content: '';
+    position: absolute;
+    inset: -120px;
+    background:
+        radial-gradient(720px 720px at 14% 18%, rgba(111, 177, 252, 0.25), transparent),
+        radial-gradient(520px 520px at 82% 18%, rgba(59, 141, 237, 0.2), transparent),
+        radial-gradient(520px 520px at 76% 82%, rgba(11, 99, 180, 0.18), transparent);
+    filter: blur(6px);
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#anasayfa::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 220px 220px;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--panel-shadow);
+}
+
+body:not(.dark-theme) #anasayfa .hero-content {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+    border-color: rgba(11, 99, 180, 0.25);
+    box-shadow: 0 24px 70px rgba(11, 99, 180, 0.2);
+}
+
+/* New subtitle style */
+.hero-subtitle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--primary-color-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.2rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: linear-gradient(120deg, rgba(59, 141, 237, 0.18), rgba(111, 177, 252, 0.12));
+    border: 1px solid rgba(111, 177, 252, 0.35);
+}
+
+.hero-content h1 {
+    font-size: 3.9rem;
+    font-weight: 800;
+    margin-bottom: 1.3rem;
+    line-height: 1.2;
+    color: var(--heading-color-dark);
+    text-shadow: 0 6px 28px rgba(0, 0, 0, 0.25);
+}
+
+/* Highlight part of the H1 like the example */
+.hero-content h1 .highlight {
+    background: linear-gradient(120deg, var(--primary-color-dark), var(--secondary-color-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+.hero-content p {
+    font-size: 1.1rem;
+    margin-bottom: 2.4rem;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--text-color-dark);
+    opacity: 0.9;
+}
+
+.hero-buttons {
+    margin-top: 1rem;
+    margin-bottom: 2.8rem;
+}
+
+/* Style the primary hero button like the example */
+#anasayfa .hero-buttons .btn-primary {
+    padding: 1rem 2.4rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.6px;
+    box-shadow: 0 20px 55px rgba(59, 141, 237, 0.35);
+    border-width: 1px;
+}
+
+#anasayfa .hero-buttons .btn-primary:hover {
+    box-shadow: 0 24px 65px rgba(59, 141, 237, 0.4);
+}
+
+/* Ensure icon aligns */
+#anasayfa .hero-buttons .btn i {
+    margin-left: 10px;
+    font-size: 0.9em; /* Adjust icon size relative to button text */
+    transition: transform 0.3s ease;
+}
+
+#anasayfa .hero-buttons .btn:hover i {
+    transform: translateX(4px);
+}
+
+/* Scroll Down Indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 44px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-radius: 50px;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+}
+
+.scroll-indicator::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 10px;
+    background: linear-gradient(180deg, var(--primary-color-dark), var(--secondary-color-dark));
+    border-radius: 3px;
+    animation: scroll-anim 2s infinite ease-in-out;
+}
+
+@keyframes scroll-anim {
+    0% { transform: translate(-50%, 0); opacity: 1; }
+    50% { transform: translate(-50%, 10px); opacity: 1; }
+    100% { transform: translate(-50%, 20px); opacity: 0; }
+}
+
+/* Sections General */
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-header .section-subtitle {
+    margin-bottom: 0.5rem;
+}
+
+.section-header .section-title {
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+     max-width: 600px;
+     margin: 0 auto;
+     color: var(--text-color);
+     opacity: 0.8;
+}
+
+/* Apply default backgrounds to main content sections */
+#hakkimizda,
+#hizmetlerimiz,
+#kalite,
+#boru-sistemleri,
+#techiz-sistemleri {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 247, 255, 0.9) 100%);
+    padding: 80px 0;
+    box-shadow: inset 0 1px 0 rgba(11, 99, 180, 0.05);
+}
+
+/* Override for dark theme */
+body.dark-theme #hakkimizda,
+body.dark-theme #hizmetlerimiz,
+body.dark-theme #kalite,
+body.dark-theme #boru-sistemleri,
+body.dark-theme #techiz-sistemleri {
+    background: linear-gradient(180deg, rgba(12, 18, 38, 0.72) 0%, rgba(5, 11, 24, 0.75) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Ensure specific sections like vizyon/misyon/iletisim keep their unique backgrounds */
+/* (Their specific ID selectors will override the general ones above) */
+
+/* About Us Section */
+#hakkimizda .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    align-items: center;
+}
+
+.about-image img, .quality-image img, .piping-image img {
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    object-fit: cover;
+    width: 100%;
+}
+
+body.dark-theme .about-image img,
+body.dark-theme .quality-image img,
+body.dark-theme .piping-image img {
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.about-content h3 {
+    margin-top: 1.5rem; /* Space above title */
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: var(--heading-color);
+}
+
+.about-content p {
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.features-list {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-item {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.86));
+    padding: 1.5rem;
+    border-radius: 14px;
+    border: 1px solid rgba(11, 99, 180, 0.12);
+    border-left: 5px solid var(--secondary-color);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
+    box-shadow: 0 16px 40px rgba(11, 99, 180, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.dark-theme .feature-item {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+    border-color: var(--glass-border);
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 48px rgba(11, 99, 180, 0.2);
+    border-color: rgba(11, 99, 180, 0.25);
+}
+
+body.dark-theme .feature-item:hover {
+     box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+}
+
+.feature-item h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--heading-color);
+}
+
+.feature-item p {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* Vision & Mission Section */
+#vizyon-misyon {
+    /* These specific rules will override the general section background */
+    background: linear-gradient(135deg, rgba(11, 99, 180, 0.08), rgba(111, 177, 252, 0.12));
+    padding: 80px 0; /* Ensure padding is consistent */
+}
+
+body.dark-theme #vizyon-misyon {
+    background: linear-gradient(135deg, rgba(59, 141, 237, 0.16), rgba(11, 99, 180, 0.08));
+}
+
+.vision-mission-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.vm-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.86));
+    padding: 2rem;
+    border-radius: 14px;
+    box-shadow: 0 18px 48px rgba(11, 99, 180, 0.14);
+    transition: transform var(--transition-speed), background-color var(--transition-speed), border-color var(--transition-speed);
+    border-top: 5px solid transparent; /* For hover effect */
+    border: 1px solid rgba(11, 99, 180, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.dark-theme .vm-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border-color: var(--glass-border);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.4);
+}
+
+.vm-card:hover {
+    transform: translateY(-8px);
+    border-top-color: var(--primary-color);
+    box-shadow: 0 22px 60px rgba(11, 99, 180, 0.2);
+}
+
+.vm-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.vm-card p {
+    margin-bottom: 0;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+/* Services Section */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.service-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.86));
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(11, 99, 180, 0.14);
+    text-align: center;
+    transition: all var(--transition-speed);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(11, 99, 180, 0.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.dark-theme .service-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+    border-color: var(--glass-border);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+}
+
+/* Restore ::before for background effect on hover */
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    /* Diagonal gradient using primary colors */
+    background: linear-gradient(135deg, transparent 30%, rgba(59, 141, 237, 0.12) 60%, rgba(11, 99, 180, 0.16) 100%);
+    transition: left var(--transition-speed);
+    z-index: 0;
+    opacity: 0.2; /* Subtle opacity */
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 55px rgba(11, 99, 180, 0.2); /* Even stronger shadow on hover */
+    border-color: rgba(11, 99, 180, 0.35);
+}
+
+/* Bring the gradient in on hover */
+.service-card:hover::before {
+    left: 0;
+    opacity: 0.3; /* Slightly increase opacity */
+}
+
+/* Ensure content stays above pseudo-element */
+.service-card h3,
+.service-card p,
+.service-card a {
+    position: relative; /* Keep content above ::before */
+    z-index: 1;
+    color: inherit; /* Reset color (removed previous override) */
+}
+
+.service-card:hover h3 {
+    color: var(--primary-color); /* Make title primary color on hover */
+}
+
+.service-card:hover a {
+    color: var(--primary-color); /* Ensure link keeps color */
+}
+
+.service-card:hover a i {
+    color: var(--primary-color); /* Ensure icon keeps color */
+}
+
+.service-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--heading-color);
+    transition: color var(--transition-speed);
+}
+
+.service-card p {
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    min-height: 80px; /* Ensure consistent card height */
+}
+
+.service-card a {
+    font-weight: 600;
+    color: var(--primary-color);
+    display: inline-flex; /* Align icon properly */
+    align-items: center;
+    transition: color var(--transition-speed);
+}
+
+.service-card a i {
+    margin-left: 8px;
+    transition: transform var(--transition-speed), color var(--transition-speed);
+    color: var(--primary-color);
+}
+
+.service-card a:hover i {
+    transform: translateX(5px);
+}
+
+/* Quality Section - Similar layout to About */
+#kalite .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    align-items: center;
+}
+
+#kalite .quality-content {
+    order: 1; /* Text first on large screens */
+}
+
+#kalite .quality-image {
+    order: 2; /* Image second on large screens */
+}
+
+.quality-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--heading-color);
+}
+
+.quality-content p {
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+/* Piping Systems Section */
+#boru-sistemleri {
+     background-color: var(--bg-color); /* Slightly different bg if needed */
+}
+
+.piping-intro {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    align-items: center;
+    margin-bottom: 4rem;
+}
+
+.piping-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.piping-stat {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.88));
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 18px 42px rgba(11, 99, 180, 0.12);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    border: 1px solid rgba(11, 99, 180, 0.12);
+}
+
+body.dark-theme .piping-stat {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+    border-color: var(--glass-border);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.38);
+}
+
+.piping-stat:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 52px rgba(11, 99, 180, 0.2);
+}
+
+.piping-stat h4 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.piping-stat h4 i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.piping-stat p {
+    font-size: 1rem;
+    margin-bottom: 0;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+/* Accordion Styles */
+.piping-details-accordion {
+    margin-bottom: 4rem;
+}
+
+.accordion-item {
+    background-color: var(--card-bg);
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    overflow: hidden; /* Ensure content stays within rounded corners */
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    cursor: pointer;
+    background-color: var(--card-bg); /* Match item bg */
+    transition: background-color var(--transition-speed);
+}
+
+.accordion-header:hover {
+    background-color: var(--accent-color-light); /* Subtle hover */
+}
+
+body.dark-theme .accordion-header:hover {
+     background-color: var(--accent-color-dark);
+}
+
+.accordion-header h4 {
+    margin-bottom: 0;
+    font-size: 1.2rem;
+    color: var(--heading-color);
+}
+
+.accordion-icon {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    transition: transform var(--transition-speed);
+}
+
+.accordion-item.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    background-color: var(--bg-color); /* Slightly different background */
+}
+
+.accordion-content-inner {
+     padding: 1.5rem;
+     border-top: 1px solid var(--border-color);
+}
+
+.accordion-content-inner h4 {
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    color: var(--secondary-color);
+}
+
+.accordion-content-inner h4:first-child {
+    margin-top: 0;
+}
+
+.accordion-content-inner h5 {
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--heading-color);
+}
+
+.accordion-content-inner ul {
+    list-style: disc;
+    margin-left: 20px;
+    margin-bottom: 1rem;
+}
+
+.accordion-content-inner ul li {
+    margin-bottom: 0.3rem;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.accordion-content-inner p {
+    margin-bottom: 1rem;
+}
+
+.standard-badge {
+    display: inline-block;
+    background-color: var(--secondary-color);
+    color: #fff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Gemi Sistemleri */
+.gemi-sistemleri {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.86));
+    padding: 2.5rem;
+    border-radius: 16px;
+    margin-bottom: 4rem;
+    border: 1px solid rgba(11, 99, 180, 0.12);
+    box-shadow: 0 18px 48px rgba(11, 99, 180, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.dark-theme .gemi-sistemleri {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border-color: var(--glass-border);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.4);
+}
+
+.gemi-sistemleri h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.gemi-sistemleri p {
+    text-align: center;
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sistemler-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.sistemler-list li {
+    background-color: var(--bg-color);
+    padding: 0.8rem 1.2rem;
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+    font-weight: 500;
+}
+
+/* CTA Area */
+.cta-area {
+    background: linear-gradient(120deg, #0b63b4 0%, #3b8ded 50%, #6fb1fc 100%);
+    padding: 3rem;
+    border-radius: 16px;
+    text-align: center;
+    color: var(--white);
+    box-shadow: 0 24px 70px rgba(11, 99, 180, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-area h3 {
+    color: var(--white);
+    margin-bottom: 0.8rem;
+}
+
+.cta-area p {
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.cta-area .btn {
+    background-color: var(--white);
+    color: var(--primary-color);
+}
+
+/* Specific hover for light theme */
+body:not(.dark-theme) .cta-area .btn:hover {
+    background-color: var(--accent-color-light);
+    color: var(--primary-color);
+}
+
+/* Specific hover for dark theme */
+body.dark-theme .cta-area .btn {
+    background-color: var(--bg-color-dark);
+    color: var(--white);
+}
+
+body.dark-theme .cta-area .btn:hover {
+    background-color: var(--secondary-color-dark);
+    color: var(--white);
+}
+
+.cta-area .btn i {
+    margin-left: 8px;
+}
+
+/* Equipment Systems Section */
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; /* Slightly smaller gap */
+    margin-bottom: 4rem;
+}
+
+.equipment-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.86));
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 18px 48px rgba(11, 99, 180, 0.14);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid rgba(11, 99, 180, 0.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.dark-theme .equipment-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border-color: var(--glass-border);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+}
+
+.equipment-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 58px rgba(11, 99, 180, 0.2);
+    border-color: rgba(11, 99, 180, 0.25);
+}
+
+.equipment-card-content {
+    padding: 1.5rem;
+}
+
+.equipment-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.7rem;
+    color: var(--heading-color);
+}
+
+.equipment-card p {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    flex-grow: 1; /* Allow paragraph to grow */
+}
+
+.equipment-card .details-link {
+    display: inline-block;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(120deg, rgba(11, 99, 180, 0.1), rgba(111, 177, 252, 0.12));
+    text-align: center;
+    font-weight: 600;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    width: 100%; /* Make button full width of card */
+    border-top: 1px solid var(--border-color);
+}
+
+.equipment-card .details-link:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+body.dark-theme .equipment-card .details-link {
+     background: linear-gradient(120deg, rgba(59, 141, 237, 0.18), rgba(111, 177, 252, 0.12));
+     color: var(--heading-color-dark);
+     border-top: 1px solid var(--glass-border);
+}
+
+body.dark-theme .equipment-card .details-link:hover {
+     background: linear-gradient(120deg, var(--secondary-color-dark), var(--primary-color-dark));
+     color: #040915;
+}
+
+.equipment-card .details-link i {
+    margin-left: 5px;
+    transition: transform var(--transition-speed);
+}
+
+.equipment-card .details-link:hover i {
+    transform: translateX(4px);
+}
+
+/* Hidden Details & Modal */
+#techiz-details {
+    display: none;
+}
+
+#techiz-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+    padding: 20px;
+}
+
+#techiz-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 10px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform var(--transition-speed);
+}
+
+#techiz-modal.show .modal-content {
+    transform: scale(1);
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: color var(--transition-speed);
+}
+
+.close-modal-btn:hover {
+    color: var(--primary-color);
+}
+
+#modal-body h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+#modal-body p {
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+#modal-body .features-list-modal {
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+#modal-body .features-list-modal h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+}
+
+#modal-body .features-list-modal ul {
+    list-style: disc;
+    margin-left: 20px;
+}
+
+#modal-body .features-list-modal ul li {
+    margin-bottom: 0.5rem;
+}
+
+.modal-cta-button {
+    display: inline-block;
+    margin-top: 1rem;
+    /* Style like .btn-primary */
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all var(--transition-speed);
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    font-size: 1rem;
+    font-family: var(--font-primary);
+}
+
+.modal-cta-button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.modal-cta-button i {
+    margin-left: 8px;
+}
+
+/* Contact Section */
+#iletisim {
+    /* These specific rules will override the general section background */
+    background: linear-gradient(135deg, rgba(11, 99, 180, 0.08), rgba(111, 177, 252, 0.12));
+    padding: 80px 0; /* Ensure padding is consistent */
+}
+
+body.dark-theme #iletisim {
+    background: linear-gradient(135deg, rgba(59, 141, 237, 0.16), rgba(11, 99, 180, 0.08));
+}
+
+.contact-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr; /* Adjust ratio as needed */
+    gap: 3rem;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.86));
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 24px 70px rgba(11, 99, 180, 0.12);
+    border: 1px solid rgba(11, 99, 180, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+body.dark-theme .contact-wrapper {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border-color: var(--glass-border);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.contact-info h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.contact-info p {
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.contact-details li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.contact-details i {
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    margin-right: 1rem;
+    margin-top: 0.2rem; /* Align icon better with text */
+    width: 25px; /* Ensure consistent spacing */
+    text-align: center;
+}
+
+.contact-details span {
+    display: block;
+    color: var(--text-color);
+}
+
+.social-media {
+    margin-top: 2rem;
+}
+
+.social-media a {
+    display: inline-block;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+    transition: transform var(--transition-speed), color var(--transition-speed);
+}
+
+.social-media a:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.contact-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.contact-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--heading-color);
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: border-color var(--transition-speed);
+}
+
+.contact-form input[type="text"]:focus,
+.contact-form input[type="email"]:focus,
+.contact-form input[type="tel"]:focus,
+.contact-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 95, 115, 0.1);
+}
+
+.contact-form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.contact-form .btn i {
+    margin-left: 8px;
+}
+
+/* Footer */
+footer {
+    /* Use dark theme background color for footer in both themes */
+    background: linear-gradient(180deg, #0a1328 0%, #050b18 100%);
+    color: var(--text-color-dark); /* Use dark theme text color */
+    padding: 4rem 0 2rem 0;
+    margin-top: 80px; /* Increased space above footer */
+    border-top: 3px solid var(--primary-color-dark); /* Add accent border */
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(520px 520px at 18% 0%, rgba(59, 141, 237, 0.18), transparent),
+        radial-gradient(480px 480px at 82% 10%, rgba(111, 177, 252, 0.16), transparent);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+footer > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Remove light theme footer background override */
+/*
+body:not(.dark-theme) footer {
+     background-color: var(--heading-color-light);
+     color: rgba(255, 255, 255, 0.8);
+}
+*/
+
+.footer-content {
+    display: grid;
+    /* Adjusted grid columns for better balance */
+    grid-template-columns: 2fr 1fr 1.5fr; /* Example: Adjust ratios as needed */
+    gap: 3rem; /* Increased gap */
+    margin-bottom: 3rem; /* Increased margin */
+    align-items: start; /* Align items to the top */
+}
+
+/* Footer About Section */
+.footer-about .logo.footer-logo {
+    /* display: inline-block; Remove this if present */
+    display: flex; /* Use flex to align items horizontally */
+    align-items: center; /* Vertically center image and text block */
+    margin-bottom: 1.5rem;
+}
+
+.footer-about .logo.footer-logo img {
+    height: 75px; /* Increased size (1.5 * 50px) */
+    /* margin-bottom: 0.5rem; Remove bottom margin */
+    margin-right: 1rem; /* Add space between image and text */
+}
+
+/* Ensure text wrapper is visible */
+.footer-about .logo.footer-logo .logo-text-wrapper {
+     display: flex; /* Keep as flex column */
+     flex-direction: column;
+     align-items: flex-start; /* Keep text left-aligned */
+     line-height: 1.1;
+}
+
+/* Ensure footer logo text uses appropriate color */
+.footer-about .logo.footer-logo .logo-text-line1,
+.footer-about .logo.footer-logo .logo-text-line2 {
+    color: var(--primary-color-dark); /* Use light blue for contrast */
+    /* Adjust font sizes slightly if needed for balance */
+}
+
+.footer-about p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+}
+
+footer .social-media a {
+    color: var(--text-color-dark); /* Use standard dark text color */
+    font-size: 1.3rem; /* Slightly smaller icons */
+    margin-right: 1rem;
+    opacity: 0.7;
+    transition: opacity var(--transition-speed), color var(--transition-speed);
+}
+
+footer .social-media a:hover {
+    opacity: 1;
+    color: var(--primary-color-dark); /* Highlight color */
+    transform: none; /* Remove previous scale transform */
+}
+
+/* Footer Headings */
+footer h4 {
+    font-size: 1.1rem; /* Adjusted size */
+    color: var(--primary-color-dark); /* Use accent color */
+    margin-bottom: 1.5rem; /* Increased spacing */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Footer Links */
+footer ul li {
+    margin-bottom: 0.8rem; /* Slightly increased spacing */
+}
+
+footer ul li a {
+    color: var(--text-color-dark);
+    opacity: 0.8;
+    transition: color var(--transition-speed), opacity var(--transition-speed), padding-left var(--transition-speed);
+    padding-left: 0; /* Reset padding */
+    font-size: 0.95rem;
+}
+
+footer ul li a:hover {
+    color: var(--primary-color-dark);
+    opacity: 1;
+    padding-left: 8px; /* Indent on hover */
+}
+
+/* Footer Contact Info */
+footer .footer-contact address span {
+    display: flex; /* Align icon and text */
+    align-items: flex-start;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+footer .footer-contact address i {
+    color: var(--primary-color-dark);
+    margin-right: 0.8rem;
+    margin-top: 0.2rem; /* Align icon better */
+    width: 18px; /* Consistent icon width */
+    text-align: center;
+}
+
+footer .footer-contact address a {
+    color: var(--text-color-dark);
+    transition: color var(--transition-speed);
+}
+
+footer .footer-contact address a:hover {
+    color: var(--primary-color-dark);
+}
+
+/* Footer Bottom */
+.footer-bottom {
+    text-align: center;
+    padding-top: 2.5rem; /* Increased padding */
+    border-top: 1px solid var(--border-color-dark); /* Use variable */
+    font-size: 0.85rem; /* Slightly smaller */
+    color: var(--text-color-dark);
+    opacity: 0.7;
+}
+
+/* Scroll to Top Button */
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 14px 34px rgba(11, 99, 180, 0.28);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity var(--transition-speed), visibility var(--transition-speed), transform var(--transition-speed);
+    z-index: 1000;
+}
+
+#scrollToTopBtn.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#scrollToTopBtn:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Animation on Scroll */
+.animate-on-scroll {
+    opacity: 0;
+    /* Slightly larger initial offset and added subtle scale */
+    transform: translateY(50px) scale(0.98);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.animated {
+    opacity: 1;
+    /* Reset transform */
+    transform: translateY(0) scale(1);
+}
+
+/* Add delays for staggered animations if desired */
+.animate-on-scroll.delay-1 { transition-delay: 0.1s; }
+.animate-on-scroll.delay-2 { transition-delay: 0.2s; }
+.animate-on-scroll.delay-3 { transition-delay: 0.3s; }
+
+/* Mobile Styles */
+@media (max-width: 992px) {
+    html { font-size: 15px; }
+    .container { width: 95%; }
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    .hero-content h1 { font-size: 3rem; }
+
+    .contact-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    #hakkimizda .container,
+    #kalite .container,
+    .piping-intro,
+    .gemi-sistemleri,
+    .cta-area {
+        grid-template-columns: 1fr;
+    }
+
+    #kalite .quality-content {
+        order: 1;
+    }
+
+    #kalite .quality-image {
+        order: 2;
+        margin-top: 2rem;
+    }
+
+     .about-image,
+     .piping-image,
+     .equipment-image {
+        margin-top: 2rem;
+     }
+}
+
+@media (max-width: 768px) {
+    /* Mobile menu styles */
+    .burger-menu {
+        display: block;
+        position: relative;
+        z-index: 1001;
+        margin-left: auto;
+        font-size: 2rem;
+    }
+
+    header nav {
+        position: relative;
+    }
+
+    header nav ul {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 320px;
+        height: 100vh;
+        background-color: var(--bg-color);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        flex-direction: column;
+        padding: 5rem 2rem;
+        transition: right 0.3s ease-in-out;
+        z-index: 1000;
+        justify-content: flex-start;
+        align-items: flex-start;
+        overflow-y: auto;
+    }
+
+    body.dark-theme header nav ul {
+        background-color: var(--bg-color-dark);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    header nav ul.active {
+        right: 0;
+    }
+
+    header nav ul li {
+        margin: 0;
+        width: 100%;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    body.dark-theme header nav ul li {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    header nav ul li a {
+        font-size: 1.2rem;
+        width: 100%;
+        display: block;
+    }
+
+    header nav ul li:last-child {
+        margin-top: 2rem;
+        text-align: center;
+        border-bottom: none;
+    }
+
+    header nav ul li a::after {
+        bottom: -8px;
+    }
+
+    #theme-toggle {
+        font-size: 1.8rem;
+        margin-left: 0;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    .hero-content p {
+        font-size: 1rem;
+    }
+    .btn { padding: 0.7rem 1.5rem; font-size: 0.9rem; }
+
+    .piping-intro, .gemi-sistemleri {
+        grid-template-columns: 1fr;
+    }
+    .piping-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    footer .logo { text-align: center; }
+    footer .social-media { text-align: center; }
+}
+
+@media (max-width: 576px) {
+    section { padding: 60px 0; }
+    .hero-content h1 { font-size: 2.2rem; }
+    .hero-buttons .btn {
+        display: block;
+        width: 80%;
+        margin: 10px auto;
+    }
+
+    .services-grid,
+    .equipment-grid,
+    .vision-mission-cards,
+    .features-list {
+        grid-template-columns: 1fr;
+    }
+
+     .piping-stat h4 {
+        font-size: 1.8rem;
+    }
+    .modal-content { padding: 1.5rem; }
+    .close-modal-btn { top: 10px; right: 15px; font-size: 1.5rem;}
+    #modal-body h3 { font-size: 1.5rem; }
+    #scrollToTopBtn { width: 45px; height: 45px; font-size: 1.2rem; bottom: 20px; right: 20px; }
+}
+
+/* --- Dark Theme Hero Button Overrides --- */
+/*
+body.dark-theme #anasayfa .hero-buttons .btn-primary {
+    ...
+}
+body.dark-theme #anasayfa .hero-buttons .btn-primary:hover {
+    ...
+}
+body.dark-theme #anasayfa .hero-buttons .btn-secondary {
+    ...
+}
+body.dark-theme #anasayfa .hero-buttons .btn-secondary:hover {
+    ...
+}
+*/
+/* --- End Dark Theme Hero Button Overrides --- */
+
+.hero-buttons .btn i {
+    margin-left: 8px;
+    transition: transform var(--transition-speed);
+}
+
+.hero-buttons .btn:hover i {
+    transform: translateX(5px);
+} 
