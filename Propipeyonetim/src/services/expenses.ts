@@ -12,6 +12,20 @@ import {
       getDoc,
       limit
 } from "firebase/firestore";
+
+/**
+ * Timestamp'i güvenli bir şekilde Date'e çevir
+ */
+const safeToDate = (timestamp: Timestamp | null | undefined): Date | null => {
+      if (!timestamp || typeof timestamp.toDate !== 'function') {
+            return null;
+      }
+      try {
+            return timestamp.toDate();
+      } catch {
+            return null;
+      }
+};
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import type { Expense, ExpenseFormData, ExpenseHistoryEntry } from "../types/Expense";
@@ -90,16 +104,16 @@ export const getExpenses = async (
                   const start = new Date(startDate);
                   start.setHours(0, 0, 0, 0);
                   expenses = expenses.filter(e => {
-                        const expenseDate = e.date.toDate();
-                        return expenseDate >= start;
+                        const expenseDate = safeToDate(e.date);
+                        return expenseDate && expenseDate >= start;
                   });
             }
             if (endDate) {
                   const end = new Date(endDate);
                   end.setHours(23, 59, 59, 999);
                   expenses = expenses.filter(e => {
-                        const expenseDate = e.date.toDate();
-                        return expenseDate <= end;
+                        const expenseDate = safeToDate(e.date);
+                        return expenseDate && expenseDate <= end;
                   });
             }
 
@@ -268,6 +282,11 @@ export const revertExpense = async (
       try {
             const expenseRef = doc(db, EXPENSES_COLLECTION, expenseId);
             const expenseSnap = await getDoc(expenseRef);
+
+            if (!expenseSnap.exists()) {
+                  throw new Error("Expense not found - cannot revert");
+            }
+
             const currentData = { id: expenseSnap.id, ...expenseSnap.data() } as Expense;
 
             // Revert işlemi de bir değişikliktir, history'ye ekle

@@ -1,88 +1,80 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import {
-  User,
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { 
+  signInWithEmailAndPassword, 
+  signOut, 
   onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../firebase/config";
-import type { UserProfile } from "../types";
+  User 
+} from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
 
-interface AuthContextValue {
+interface UserProfile {
+  id: string;
+  email: string;
+  displayName: string;
+  role: string;
+}
+
+interface AuthContextType {
   user: User | null;
-  profile: UserProfile | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = (): AuthContextValue => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
-  return ctx;
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (fbUser) => {
-      setUser(fbUser);
-      if (fbUser) {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+      
+      if (firebaseUser) {
         try {
-          const docRef = doc(db, "users", fbUser.uid);
-          const snap = await getDoc(docRef);
-          if (snap.exists()) {
-            const data = snap.data() as Omit<UserProfile, "id">;
-            setProfile({ id: snap.id, ...data });
-          } else {
-            setProfile({
-              id: fbUser.uid,
-              email: fbUser.email || "",
-              displayName: fbUser.displayName || fbUser.email || "Kullanıcı",
-              role: "ORTAK",
-            });
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            setUserProfile({
+              id: userDoc.id,
+              ...userDoc.data()
+            } as UserProfile);
           }
         } catch (error) {
-          console.error("Profil alınamadı:", error);
-          setProfile(null);
+          console.error('Error fetching user profile:', error);
         }
       } else {
-        setProfile(null);
+        setUserProfile(null);
       }
+      
       setLoading(false);
     });
-    return unsub;
+
+    return unsubscribe;
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
-  }, []);
+  };
 
-  const logout = useCallback(async () => {
+  const logout = async () => {
     await signOut(auth);
-  }, []);
+  };
 
-  const value = useMemo(
-    () => ({ user, profile, loading, login, logout }),
-    [user, profile, loading, login, logout]
+  return (
+    <AuthContext.Provider value={{ user, userProfile, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
+};
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

@@ -23,12 +23,14 @@ import {
   ToggleOn as ToggleOnIcon,
   ToggleOff as ToggleOffIcon,
   CloudUpload as CloudUploadIcon,
+  AccountBalanceWallet as BalanceIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import type { Partner } from '../types/Partner';
 import { getPartners, togglePartnerActive, seedPartnersData } from '../services/partners';
 import { useAuth } from '../context/AuthContext';
 import PartnerFormModal from '../components/PartnerFormModal';
+import BalanceEditModal from '../components/BalanceEditModal';
 
 const PartnersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,6 +43,8 @@ const PartnersPage: React.FC = () => {
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
   const [showInactive, setShowInactive] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [balanceEditPartner, setBalanceEditPartner] = useState<Partner | null>(null);
 
   // Ortakları yükle
   const loadPartners = React.useCallback(async () => {
@@ -233,16 +237,32 @@ const PartnersPage: React.FC = () => {
                       {formatCurrency(partner.baseSalary)}
                     </TableCell>
                     <TableCell align="right">
-                      <Box>
-                        <Typography 
-                          fontWeight="bold" 
-                          sx={{ color: balanceInfo.color }}
-                        >
-                          {formatCurrency(partner.currentBalance)}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: balanceInfo.color }}>
-                          {balanceInfo.text}
-                        </Typography>
+                      <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
+                        <Box>
+                          <Typography
+                            fontWeight="bold"
+                            sx={{ color: balanceInfo.color }}
+                          >
+                            {formatCurrency(partner.currentBalance)}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: balanceInfo.color }}>
+                            {balanceInfo.text}
+                          </Typography>
+                        </Box>
+                        {(currentUserProfile?.role === 'ADMIN' || currentUserProfile?.role === 'super_admin') && (
+                          <Tooltip title="Bakiye Düzenle">
+                            <IconButton
+                              size="small"
+                              color="warning"
+                              onClick={() => {
+                                setBalanceEditPartner(partner);
+                                setShowBalanceModal(true);
+                              }}
+                            >
+                              <BalanceIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </Box>
                     </TableCell>
                     <TableCell align="center">
@@ -263,7 +283,7 @@ const PartnersPage: React.FC = () => {
                             <ViewIcon />
                           </IconButton>
                         </Tooltip>
-                        {currentUserProfile?.role === 'ADMIN' && (
+                        {(currentUserProfile?.role === 'ADMIN' || currentUserProfile?.role === 'super_admin') && (
                           <>
                             <Tooltip title="Düzenle">
                               <IconButton
@@ -333,6 +353,21 @@ const PartnersPage: React.FC = () => {
           loadPartners();
         }}
         partner={editingPartner}
+      />
+
+      {/* Balance Edit Modal */}
+      <BalanceEditModal
+        open={showBalanceModal}
+        onClose={() => {
+          setShowBalanceModal(false);
+          setBalanceEditPartner(null);
+        }}
+        onSuccess={() => {
+          setShowBalanceModal(false);
+          setBalanceEditPartner(null);
+          loadPartners();
+        }}
+        partner={balanceEditPartner}
       />
     </Box>
   );

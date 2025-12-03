@@ -1,25 +1,20 @@
-import "react-native-gesture-handler";
-import React from "react";
-import { StatusBar } from "expo-status-bar";
-import { useColorScheme } from "react-native";
-import { PaperProvider } from "react-native-paper";
-import RootNavigator from "./src/navigation/RootNavigator";
-import { AuthProvider } from "./src/context/AuthContext";
-import { paperDarkTheme, paperLightTheme } from "./src/theme";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import 'react-native-gesture-handler';
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { AuthProvider } from './src/context/AuthContext';
+import Navigation from './src/navigation';
 
 export default function App() {
-  const scheme = useColorScheme();
-  const paperTheme = scheme === "dark" ? paperDarkTheme : paperLightTheme;
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PaperProvider theme={paperTheme}>
+      <SafeAreaProvider>
         <AuthProvider>
-          <StatusBar style={scheme === "dark" ? "light" : "dark"} />
-          <RootNavigator />
+          <StatusBar style="auto" />
+          <Navigation />
         </AuthProvider>
-      </PaperProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

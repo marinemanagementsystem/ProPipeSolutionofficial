@@ -166,7 +166,7 @@ const ProjectDetailPage: React.FC = () => {
                               <Grid size={{ xs: 12, md: 4 }}>
                                     <Card elevation={3} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
                                           <CardContent sx={{ textAlign: 'center', py: 2 }}>
-                                                <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                                                <Typography variant="caption" sx={{ color: 'inherit', fontWeight: 600 }}>
                                                       ANLIK İÇ BAKİYE
                                                 </Typography>
                                                 <Typography variant="h4" fontWeight="bold">

@@ -25,6 +25,8 @@ export interface Project {
   location?: string;
   manager?: string;
   status?: string;
+  budget?: number;
+  spent?: number;
 }
 
 export interface Partner {
@@ -42,6 +44,7 @@ export interface Expense {
   status: "PAID" | "UNPAID";
   type?: string;
   currency?: string;
+  category?: string;
   ownerId?: string;
   isDeleted?: boolean;
 }
@@ -57,4 +60,18 @@ export interface NetworkAction {
   lastContactDate?: Timestamp;
   nextActionDate?: Timestamp;
   isOverdue?: boolean;
+}
+
+export interface DashboardSummary {
+  companySafeBalance: number;
+  currency: string;
+  lastUpdatedAt?: Timestamp | null;
+  totalProjectsBalance: number;
+  totalProjectsCount: number;
+  totalPaidExpensesThisMonth: number;
+  totalPartnersPositive: number;
+  totalPartnersNegative: number;
+  totalExpenses: number;
+  unpaidExpenses: number;
+  totalPartners: number;
 }

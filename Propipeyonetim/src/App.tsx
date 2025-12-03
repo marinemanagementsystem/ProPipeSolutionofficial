@@ -32,6 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isDark = mode === 'dark';
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
@@ -54,28 +55,36 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       to={item.path}
       startIcon={item.icon}
       sx={{
-        color: isActive(item.path) ? 'primary.main' : 'text.secondary',
+        color: isActive(item.path)
+          ? (isDark ? '#22d3ee' : theme.palette.primary.main)
+          : 'text.secondary',
         fontWeight: isActive(item.path) ? 700 : 500,
         px: 2.5,
         py: 1,
-        borderRadius: 2,
+        borderRadius: 3,
         position: 'relative',
-        backgroundColor: isActive(item.path) 
-          ? alpha(theme.palette.primary.main, 0.08) 
+        backgroundColor: isActive(item.path)
+          ? alpha(isDark ? '#22d3ee' : theme.palette.primary.main, 0.10)
           : 'transparent',
+        border: isActive(item.path)
+          ? `1px solid ${alpha(isDark ? '#22d3ee' : theme.palette.primary.main, 0.20)}`
+          : '1px solid transparent',
         '&:hover': {
-          backgroundColor: alpha(theme.palette.primary.main, 0.12),
+          backgroundColor: alpha(isDark ? '#22d3ee' : theme.palette.primary.main, 0.15),
+          borderColor: alpha(isDark ? '#22d3ee' : theme.palette.primary.main, 0.30),
         },
         '&::after': isActive(item.path) ? {
           content: '""',
           position: 'absolute',
-          bottom: -8,
+          bottom: -9,
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 24,
+          width: 28,
           height: 3,
           borderRadius: '3px 3px 0 0',
-          background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+          background: isDark
+            ? 'linear-gradient(90deg, #22d3ee, #10b981)'
+            : `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.success.main})`,
         } : {},
       }}
     >
@@ -92,55 +101,56 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       transition: 'background-color 0.3s ease'
     }}>
       {/* Modern AppBar */}
-      <AppBar 
-        position="sticky" 
+      <AppBar
+        position="sticky"
         elevation={0}
-        sx={{ 
-          bgcolor: alpha(theme.palette.background.paper, 0.8),
-          backdropFilter: 'blur(12px)',
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+        sx={{
+          bgcolor: isDark ? alpha('#0c1226', 0.85) : alpha('#ffffff', 0.90),
+          backdropFilter: 'blur(16px)',
+          borderBottom: `1px solid ${isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.08)}`,
         }}
       >
         <Container maxWidth="xl">
           <Toolbar disableGutters sx={{ minHeight: { xs: 64, md: 72 } }}>
             {/* Logo */}
-            <Box 
+            <Box
               component={Link}
               to="/"
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: 2,
                 mr: 4,
                 textDecoration: 'none',
               }}
             >
               <Box
-                component="img"
-                src={`${import.meta.env.BASE_URL}logo.jpg`}
-                alt="PRO PIPE|STEEL Logo"
                 sx={{
-                  width: 52,
-                  height: 52,
+                  width: 44,
+                  height: 44,
                   borderRadius: 3,
-                  objectFit: 'cover',
-                  border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                  boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.35)}`,
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 8px 24px rgba(6, 182, 212, 0.35)',
                   transition: 'all 0.3s ease',
                   '&:hover': {
                     transform: 'scale(1.05)',
-                    boxShadow: `0 6px 24px ${alpha(theme.palette.primary.main, 0.45)}`,
+                    boxShadow: '0 12px 32px rgba(6, 182, 212, 0.45)',
                   },
                 }}
-              />
+              >
+                <BusinessIcon sx={{ color: '#0f172a', fontSize: 26 }} />
+              </Box>
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
-                  <Typography 
+                  <Typography
                     component="span"
-                    sx={{ 
+                    sx={{
                       fontSize: '1.1rem',
-                      fontWeight: 300, 
-                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`,
+                      fontWeight: 300,
+                      background: 'linear-gradient(135deg, #22d3ee 0%, #10b981 100%)',
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -149,12 +159,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   >
                     PRO{' '}
                   </Typography>
-                  <Typography 
+                  <Typography
                     component="span"
-                    sx={{ 
+                    sx={{
                       fontSize: '1.1rem',
-                      fontWeight: 700, 
-                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`,
+                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #22d3ee 0%, #10b981 100%)',
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -162,23 +172,23 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   >
                     PIPE
                   </Typography>
-                  <Typography 
+                  <Typography
                     component="span"
-                    sx={{ 
+                    sx={{
                       fontSize: '1.1rem',
-                      fontWeight: 300, 
-                      color: alpha(theme.palette.text.primary, 0.4),
+                      fontWeight: 300,
+                      color: alpha(theme.palette.text.primary, 0.3),
                       mx: 0.3,
                     }}
                   >
                     |
                   </Typography>
-                  <Typography 
+                  <Typography
                     component="span"
-                    sx={{ 
+                    sx={{
                       fontSize: '1.1rem',
-                      fontWeight: 700, 
-                      background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -187,10 +197,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     STEEL
                   </Typography>
                 </Box>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    color: 'text.secondary',
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: isDark ? '#94a3b8' : '#64748b',
                     fontSize: '0.6rem',
                     letterSpacing: '0.25em',
                     textTransform: 'uppercase',
@@ -218,45 +228,48 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               {/* Theme Toggle */}
               <Tooltip title={mode === 'dark' ? 'Açık Tema' : 'Koyu Tema'}>
-                <IconButton 
+                <IconButton
                   onClick={toggleTheme}
-                  sx={{ 
-                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  sx={{
+                    bgcolor: isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.05),
+                    border: `1px solid ${isDark ? alpha('#ffffff', 0.10) : alpha('#0f172a', 0.08)}`,
                     '&:hover': {
-                      bgcolor: alpha(theme.palette.primary.main, 0.15),
+                      bgcolor: isDark ? alpha('#ffffff', 0.12) : alpha('#0f172a', 0.08),
                     },
                   }}
                 >
-                  {mode === 'dark' ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
+                  {mode === 'dark' ? <Brightness7Icon fontSize="small" sx={{ color: '#fbbf24' }} /> : <Brightness4Icon fontSize="small" />}
                 </IconButton>
               </Tooltip>
 
               {/* User Info - Desktop */}
               {!isMobile && currentUserProfile && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, ml: 1 }}>
-                  <Avatar 
-                    sx={{ 
-                      width: 36, 
-                      height: 36,
+                  <Avatar
+                    sx={{
+                      width: 38,
+                      height: 38,
                       fontSize: '0.9rem',
                       fontWeight: 700,
+                      background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
                     }}
                   >
                     {currentUserProfile.displayName?.charAt(0) || 'U'}
                   </Avatar>
                   <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
-                    <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
+                    <Typography variant="body2" fontWeight={600} lineHeight={1.2} sx={{ color: isDark ? '#f1f5f9' : '#1e293b' }}>
                       {currentUserProfile.displayName}
                     </Typography>
-                    <Chip 
-                      label={currentUserProfile.role} 
+                    <Chip
+                      label={currentUserProfile.role}
                       size="small"
-                      sx={{ 
-                        height: 18,
+                      sx={{
+                        height: 20,
                         fontSize: '0.65rem',
                         fontWeight: 600,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        color: 'primary.main',
+                        bgcolor: isDark ? alpha('#22d3ee', 0.15) : alpha('#06b6d4', 0.12),
+                        color: isDark ? '#22d3ee' : '#0891b2',
+                        border: `1px solid ${isDark ? alpha('#22d3ee', 0.25) : alpha('#06b6d4', 0.25)}`,
                       }}
                     />
                   </Box>
@@ -266,13 +279,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               {/* Logout - Desktop */}
               {!isMobile && (
                 <Tooltip title="Çıkış Yap">
-                  <IconButton 
+                  <IconButton
                     onClick={logout}
-                    sx={{ 
+                    sx={{
                       color: 'text.secondary',
+                      bgcolor: isDark ? alpha('#ffffff', 0.05) : alpha('#0f172a', 0.03),
+                      border: `1px solid ${isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.06)}`,
                       '&:hover': {
-                        color: 'error.main',
-                        bgcolor: alpha(theme.palette.error.main, 0.08),
+                        color: '#ef4444',
+                        bgcolor: alpha('#ef4444', 0.12),
+                        borderColor: alpha('#ef4444', 0.25),
                       },
                     }}
                   >
@@ -283,10 +299,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
               {/* Mobile Menu Button */}
               {isMobile && (
-                <IconButton 
+                <IconButton
                   onClick={() => setMobileMenuOpen(true)}
-                  sx={{ 
-                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  sx={{
+                    bgcolor: isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.05),
+                    border: `1px solid ${isDark ? alpha('#ffffff', 0.10) : alpha('#0f172a', 0.08)}`,
                   }}
                 >
                   <MenuIcon />
@@ -304,29 +321,53 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         onClose={() => setMobileMenuOpen(false)}
         PaperProps={{
           sx: {
-            width: 280,
-            bgcolor: 'background.paper',
-            p: 2,
+            width: 300,
+            bgcolor: isDark ? '#0c1226' : '#ffffff',
+            backgroundImage: isDark
+              ? 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(12, 18, 38, 0.90) 100%)'
+              : 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%)',
+            borderLeft: `1px solid ${isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.08)}`,
+            p: 2.5,
           },
         }}
       >
         {/* User Info in Drawer */}
         {currentUserProfile && (
-          <Box sx={{ mb: 3, p: 2, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 3 }}>
+          <Box
+            sx={{
+              mb: 3,
+              p: 2.5,
+              bgcolor: isDark ? alpha('#ffffff', 0.05) : alpha('#06b6d4', 0.05),
+              borderRadius: 4,
+              border: `1px solid ${isDark ? alpha('#ffffff', 0.08) : alpha('#06b6d4', 0.15)}`,
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Avatar sx={{ width: 48, height: 48 }}>
+              <Avatar
+                sx={{
+                  width: 52,
+                  height: 52,
+                  background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                }}
+              >
                 {currentUserProfile.displayName?.charAt(0) || 'U'}
               </Avatar>
               <Box>
-                <Typography fontWeight={600}>{currentUserProfile.displayName}</Typography>
-                <Chip 
-                  label={currentUserProfile.role} 
+                <Typography fontWeight={600} sx={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
+                  {currentUserProfile.displayName}
+                </Typography>
+                <Chip
+                  label={currentUserProfile.role}
                   size="small"
-                  sx={{ 
-                    height: 20,
+                  sx={{
+                    height: 22,
                     fontSize: '0.7rem',
-                    bgcolor: alpha(theme.palette.primary.main, 0.15),
-                    color: 'primary.main',
+                    fontWeight: 600,
+                    bgcolor: isDark ? alpha('#22d3ee', 0.15) : alpha('#06b6d4', 0.12),
+                    color: isDark ? '#22d3ee' : '#0891b2',
+                    border: `1px solid ${isDark ? alpha('#22d3ee', 0.25) : alpha('#06b6d4', 0.25)}`,
                   }}
                 />
               </Box>
@@ -344,22 +385,38 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 onClick={() => setMobileMenuOpen(false)}
                 selected={isActive(item.path)}
                 sx={{
-                  borderRadius: 2,
+                  borderRadius: 3,
+                  border: isActive(item.path)
+                    ? `1px solid ${isDark ? alpha('#22d3ee', 0.25) : alpha('#06b6d4', 0.25)}`
+                    : '1px solid transparent',
                   '&.Mui-selected': {
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    bgcolor: isDark ? alpha('#22d3ee', 0.10) : alpha('#06b6d4', 0.08),
                     '&:hover': {
-                      bgcolor: alpha(theme.palette.primary.main, 0.15),
+                      bgcolor: isDark ? alpha('#22d3ee', 0.15) : alpha('#06b6d4', 0.12),
                     },
+                  },
+                  '&:hover': {
+                    bgcolor: isDark ? alpha('#ffffff', 0.05) : alpha('#0f172a', 0.03),
                   },
                 }}
               >
-                <ListItemIcon sx={{ color: isActive(item.path) ? 'primary.main' : 'text.secondary', minWidth: 40 }}>
+                <ListItemIcon
+                  sx={{
+                    color: isActive(item.path)
+                      ? (isDark ? '#22d3ee' : '#0891b2')
+                      : 'text.secondary',
+                    minWidth: 44,
+                  }}
+                >
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText 
-                  primary={item.label} 
-                  primaryTypographyProps={{ 
-                    fontWeight: isActive(item.path) ? 600 : 400 
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{
+                    fontWeight: isActive(item.path) ? 600 : 400,
+                    color: isActive(item.path)
+                      ? (isDark ? '#22d3ee' : '#0891b2')
+                      : 'text.primary',
                   }}
                 />
               </ListItemButton>
@@ -372,13 +429,21 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <Button
             fullWidth
             variant="outlined"
-            color="error"
             startIcon={<LogoutIcon />}
             onClick={() => {
               setMobileMenuOpen(false);
               logout();
             }}
-            sx={{ borderRadius: 2 }}
+            sx={{
+              borderRadius: 3,
+              borderColor: alpha('#ef4444', 0.4),
+              color: '#ef4444',
+              py: 1.2,
+              '&:hover': {
+                bgcolor: alpha('#ef4444', 0.10),
+                borderColor: '#ef4444',
+              },
+            }}
           >
             Çıkış Yap
           </Button>

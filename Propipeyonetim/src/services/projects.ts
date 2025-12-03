@@ -423,6 +423,16 @@ export const recalculateStatementTotals = async (
                   finalBalance
             }, user);
 
+            // SYNC PROJECT BALANCE: Update project's currentBalance with the latest finalBalance
+            // This ensures the project always reflects the current state of its statements
+            if (statement.projectId && statement.status === "DRAFT") {
+                  const projectRef = doc(db, PROJECTS_COLLECTION, statement.projectId);
+                  await updateDoc(projectRef, {
+                        currentBalance: finalBalance,
+                        updatedAt: serverTimestamp()
+                  });
+            }
+
       } catch (error) {
             console.error("Error recalculating totals:", error);
             throw error;

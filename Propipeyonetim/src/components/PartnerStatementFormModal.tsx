@@ -26,8 +26,8 @@ import {
 } from '../services/partners';
 import { useAuth } from '../context/AuthContext';
 
-// SUPER_ADMIN kontrolü için helper
-const isSuperAdmin = (role?: string): boolean => role === 'SUPER_ADMIN';
+// SUPER_ADMIN kontrolü için helper (hem büyük hem küçük harf destekli)
+const isSuperAdmin = (role?: string): boolean => role === 'SUPER_ADMIN' || role === 'super_admin' || role === 'ADMIN';
 
 interface PartnerStatementFormModalProps {
   open: boolean;
@@ -287,6 +287,7 @@ const PartnerStatementFormModal: React.FC<PartnerStatementFormModalProps> = ({
             type="number"
             value={formData.previousBalance}
             onChange={handleChange('previousBalance')}
+            onFocus={(e) => e.target.select()}
             fullWidth
             disabled={!previousBalanceEditable}
             helperText={
@@ -314,6 +315,7 @@ const PartnerStatementFormModal: React.FC<PartnerStatementFormModalProps> = ({
             type="number"
             value={formData.personalExpenseReimbursement}
             onChange={handleChange('personalExpenseReimbursement')}
+            onFocus={(e) => e.target.select()}
             fullWidth
             InputProps={{
               endAdornment: <InputAdornment position="end">₺</InputAdornment>,
@@ -328,6 +330,7 @@ const PartnerStatementFormModal: React.FC<PartnerStatementFormModalProps> = ({
             type="number"
             value={formData.monthlySalary}
             onChange={handleChange('monthlySalary')}
+            onFocus={(e) => e.target.select()}
             fullWidth
             InputProps={{
               endAdornment: <InputAdornment position="end">₺</InputAdornment>,
@@ -342,6 +345,7 @@ const PartnerStatementFormModal: React.FC<PartnerStatementFormModalProps> = ({
             type="number"
             value={formData.profitShare}
             onChange={handleChange('profitShare')}
+            onFocus={(e) => e.target.select()}
             fullWidth
             InputProps={{
               endAdornment: <InputAdornment position="end">₺</InputAdornment>,
@@ -356,6 +360,7 @@ const PartnerStatementFormModal: React.FC<PartnerStatementFormModalProps> = ({
             type="number"
             value={formData.actualWithdrawn}
             onChange={handleChange('actualWithdrawn')}
+            onFocus={(e) => e.target.select()}
             fullWidth
             InputProps={{
               endAdornment: <InputAdornment position="end">₺</InputAdornment>,

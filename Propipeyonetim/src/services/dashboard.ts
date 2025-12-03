@@ -98,10 +98,33 @@ const getLastNMonthsRanges = (n: number): { year: number; month: number; label: 
 
 /**
  * Timestamp'i "YYYY-MM" formatına çevir
+ * @param timestamp - Firestore Timestamp veya null/undefined
+ * @returns "YYYY-MM" formatında string veya null
  */
-const timestampToMonthKey = (timestamp: Timestamp): string => {
-  const date = timestamp.toDate();
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+const timestampToMonthKey = (timestamp: Timestamp | null | undefined): string | null => {
+  if (!timestamp || typeof timestamp.toDate !== 'function') {
+    return null;
+  }
+  try {
+    const date = timestamp.toDate();
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Timestamp'i güvenli bir şekilde Date'e çevir
+ */
+const safeToDate = (timestamp: Timestamp | null | undefined): Date | null => {
+  if (!timestamp || typeof timestamp.toDate !== 'function') {
+    return null;
+  }
+  try {
+    return timestamp.toDate();
+  } catch {
+    return null;
+  }
 };
 
 // ==================== ANA SERVİS FONKSİYONLARI ====================
@@ -183,13 +206,13 @@ const getPaidExpensesThisMonth = async (): Promise<number> => {
   snapshot.forEach((doc) => {
     const data = doc.data() as Expense;
     if (!data.isDeleted && data.date) {
-      const expenseDate = data.date.toDate();
-      if (expenseDate >= start && expenseDate <= end) {
+      const expenseDate = safeToDate(data.date);
+      if (expenseDate && expenseDate >= start && expenseDate <= end) {
         total += data.amount || 0;
       }
     }
   });
-  
+
   return total;
 };
 
@@ -248,11 +271,11 @@ export const getLast6MonthsExpensesTrend = async (): Promise<MonthlyTrendItem[]>
   snapshot.forEach((doc) => {
     const data = doc.data() as Expense;
     if (!data.isDeleted && data.date) {
-      const expenseDate = data.date.toDate();
+      const expenseDate = safeToDate(data.date);
       // Tarih aralığı kontrolü JS'de yap
-      if (expenseDate >= startDate && expenseDate <= endDate) {
+      if (expenseDate && expenseDate >= startDate && expenseDate <= endDate) {
         const monthKey = timestampToMonthKey(data.date);
-        if (monthlyTotals[monthKey] !== undefined) {
+        if (monthKey && monthlyTotals[monthKey] !== undefined) {
           monthlyTotals[monthKey] += data.amount || 0;
         }
       }
@@ -297,11 +320,11 @@ export const getLast6MonthsStatementsTrend = async (): Promise<StatementTrendIte
   snapshot.forEach((doc) => {
     const data = doc.data() as ProjectStatement;
     if (data.date) {
-      const statementDate = data.date.toDate();
+      const statementDate = safeToDate(data.date);
       // Tarih aralığı kontrolü JS'de yap
-      if (statementDate >= startDate && statementDate <= endDate) {
+      if (statementDate && statementDate >= startDate && statementDate <= endDate) {
         const monthKey = timestampToMonthKey(data.date);
-        if (monthlyData[monthKey]) {
+        if (monthKey && monthlyData[monthKey]) {
           monthlyData[monthKey].total += data.totals?.netCashReal || 0;
           monthlyData[monthKey].count += 1;
         }
@@ -322,7 +345,7 @@ export const getLast6MonthsStatementsTrend = async (): Promise<StatementTrendIte
  * Bugün veya bu hafta aranması gereken network kişilerini getir
  */
 export const getUpcomingNetworkActions = async (): Promise<NetworkActionItem[]> => {
-  const networkRef = collection(db, "network");
+  const networkRef = collection(db, "network_contacts");
   
   // 7 gün sonrası
   const nextWeek = new Date();
@@ -345,7 +368,8 @@ export const getUpcomingNetworkActions = async (): Promise<NetworkActionItem[]> 
     
     // nextActionDate kontrolü
     if (data.nextActionDate) {
-      const actionDate = data.nextActionDate.toDate();
+      const actionDate = safeToDate(data.nextActionDate);
+      if (!actionDate) return;
       const isOverdue = actionDate < todayStart;
       const isWithinWeek = actionDate <= nextWeek;
       
@@ -370,8 +394,8 @@ export const getUpcomingNetworkActions = async (): Promise<NetworkActionItem[]> 
   results.sort((a, b) => {
     if (a.isOverdue && !b.isOverdue) return -1;
     if (!a.isOverdue && b.isOverdue) return 1;
-    const dateA = a.nextActionDate?.toDate().getTime() || 0;
-    const dateB = b.nextActionDate?.toDate().getTime() || 0;
+    const dateA = safeToDate(a.nextActionDate)?.getTime() || 0;
+    const dateB = safeToDate(b.nextActionDate)?.getTime() || 0;
     return dateA - dateB;
   });
   
@@ -440,8 +464,8 @@ export const getLatestClosedStatements = async (limitCount: number = 5): Promise
   
   // Tarihe göre sırala (en yeniden en eskiye)
   allStatements.sort((a, b) => {
-    const dateA = a.date?.toDate().getTime() || 0;
-    const dateB = b.date?.toDate().getTime() || 0;
+    const dateA = safeToDate(a.date)?.getTime() || 0;
+    const dateB = safeToDate(b.date)?.getTime() || 0;
     return dateB - dateA;
   });
   

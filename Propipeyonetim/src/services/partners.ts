@@ -184,6 +184,53 @@ export const togglePartnerActive = async (
   });
 };
 
+/**
+ * Ortak bakiyesini manuel olarak güncelle
+ * Bu fonksiyon devreden bakiyeyi düzeltmek için kullanılır
+ */
+export const updatePartnerBalance = async (
+  partnerId: string,
+  newBalance: number,
+  reason: string,
+  user?: { uid: string; email: string; displayName?: string }
+): Promise<void> => {
+  const docRef = doc(db, "partners", partnerId);
+
+  // Mevcut partner'ı al (history için)
+  const partner = await getPartnerById(partnerId);
+  if (!partner) throw new Error("Ortak bulunamadı");
+
+  const previousBalance = partner.currentBalance;
+
+  // Partner bakiyesini güncelle
+  await updateDoc(docRef, {
+    currentBalance: newBalance,
+    updatedAt: serverTimestamp(),
+    ...(user && {
+      updatedBy: user.uid,
+      updatedByEmail: user.email,
+      updatedByDisplayName: user.displayName || "",
+    }),
+  });
+
+  // History için partner_balance_adjustments collection'ına kaydet
+  const balanceAdjustmentsCollection = collection(db, "partner_balance_adjustments");
+  await addDoc(balanceAdjustmentsCollection, {
+    partnerId,
+    partnerName: partner.name,
+    previousBalance,
+    newBalance,
+    difference: newBalance - previousBalance,
+    reason,
+    adjustedAt: serverTimestamp(),
+    ...(user && {
+      adjustedBy: user.uid,
+      adjustedByEmail: user.email,
+      adjustedByDisplayName: user.displayName || "",
+    }),
+  });
+};
+
 // ============================================
 // PARTNER STATEMENT (ORTAK HESAP ÖZETİ) FONKSİYONLARI
 // ============================================
@@ -323,6 +370,13 @@ export const createPartnerStatement = async (
   };
   await addStatementHistory(docRef.id, partnerId, createdStatement as PartnerStatement, 'CREATE', user);
 
+  // Partner bakiyesini güncelle
+  const partnerRef = doc(db, "partners", partnerId);
+  await updateDoc(partnerRef, {
+    currentBalance: nextMonthBalance,
+    updatedAt: serverTimestamp(),
+  });
+
   return docRef.id;
 };
 
@@ -369,14 +423,13 @@ export const updatePartnerStatement = async (
     }),
   });
 
-  // Eğer CLOSED ise partner bakiyesini de güncelle
-  if (statement.status === 'CLOSED') {
-    const partnerRef = doc(db, "partners", statement.partnerId);
-    await updateDoc(partnerRef, {
-      currentBalance: nextMonthBalance,
-      updatedAt: serverTimestamp(),
-    });
-  }
+  // Partner bakiyesini her zaman güncelle (DRAFT veya CLOSED)
+  // Bu sayede ortağın güncel durumu her zaman görünür
+  const partnerRef = doc(db, "partners", statement.partnerId);
+  await updateDoc(partnerRef, {
+    currentBalance: nextMonthBalance,
+    updatedAt: serverTimestamp(),
+  });
 };
 
 /**

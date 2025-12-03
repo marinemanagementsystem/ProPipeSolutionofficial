@@ -1,154 +1,220 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
   Image,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
-  View,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Button,
-  HelperText,
-  Text,
-  TextInput,
-  useTheme,
-} from "react-native-paper";
-import { useAuth } from "../context/AuthContext";
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, borderRadius, fontSize, fontWeight, shadow } from '../theme';
+import { useAuth } from '../context/AuthContext';
 
-const LoginScreen: React.FC = () => {
+export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const theme = useTheme();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = async () => {
-    setError(null);
+  const handleLogin = async () => {
     if (!email || !password) {
-      setError("E-posta ve şifre gerekli");
+      Alert.alert('Hata', 'Lütfen e-posta ve şifre girin');
       return;
     }
-    setSubmitting(true);
+
+    setLoading(true);
     try {
-      await login(email.trim(), password);
-    } catch (err) {
-      console.error("Login failed:", err);
-      setError("Giriş yapılamadı, bilgileri kontrol edin");
+      await login(email, password);
+    } catch (error: any) {
+      Alert.alert('Giriş Hatası', 'E-posta veya şifre hatalı');
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
     <LinearGradient
-      colors={["#0f172a", "#111827", theme.colors.primary]}
+      colors={[colors.primary, colors.primaryLight, colors.secondary]}
       style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={styles.container}
-        >
-          <View style={styles.logoArea}>
-            <Image
-              source={require("../../assets/icon.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Text variant="headlineLarge" style={styles.title}>
-              PRO PIPE | STEEL
-            </Text>
-            <Text variant="bodyMedium" style={styles.subtitle}>
-              Operasyon yönetimi için mobil asistan
-            </Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <View style={styles.content}>
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <View style={styles.logoWrapper}>
+              <Ionicons name="construct" size={48} color={colors.primary} />
+            </View>
+            <Text style={styles.logoText}>PRO PIPE</Text>
+            <Text style={styles.logoSubtext}>STEEL SOLUTION</Text>
           </View>
 
+          {/* Login Card */}
           <View style={styles.card}>
-            <TextInput
-              label="E-posta"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-              mode="outlined"
-            />
-            <TextInput
-              label="Şifre"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              style={styles.input}
-              mode="outlined"
-            />
-            {error && <HelperText type="error">{error}</HelperText>}
-            <Button
-              mode="contained"
-              onPress={onSubmit}
-              loading={submitting}
-              disabled={submitting}
-              style={styles.button}
-              contentStyle={{ paddingVertical: 8 }}
+            <Text style={styles.title}>Hoş Geldiniz</Text>
+            <Text style={styles.subtitle}>Hesabınıza giriş yapın</Text>
+
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="E-posta"
+                placeholderTextColor={colors.textLight}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Şifre"
+                placeholderTextColor={colors.textLight}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons 
+                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                  size={20} 
+                  color={colors.textSecondary} 
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.button, loading && styles.buttonDisabled]} 
+              onPress={handleLogin}
+              disabled={loading}
             >
-              Giriş Yap
-            </Button>
-            <Text style={styles.helperText}>
-              Giriş bilgileriniz web uygulamasındaki ile aynıdır.
-            </Text>
+              {loading ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <>
+                  <Text style={styles.buttonText}>Giriş Yap</Text>
+                  <Ionicons name="arrow-forward" size={20} color={colors.white} />
+                </>
+              )}
+            </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+
+          <Text style={styles.footerText}>© 2024 Pro Pipe | Steel Solution</Text>
+        </View>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  logoArea: {
-    alignItems: "center",
-    gap: 8,
-    paddingTop: 32,
+  keyboardView: {
+    flex: 1,
   },
-  logo: {
-    width: 92,
-    height: 92,
-    borderRadius: 20,
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
   },
-  title: {
-    color: "#f8fafc",
-    fontWeight: "700",
-    letterSpacing: 1.2,
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: spacing.xl,
   },
-  subtitle: {
-    color: "#cbd5e1",
+  logoWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+    ...shadow.lg,
+  },
+  logoText: {
+    fontSize: fontSize.xxl,
+    fontWeight: fontWeight.bold,
+    color: colors.white,
+    letterSpacing: 2,
+  },
+  logoSubtext: {
+    fontSize: fontSize.sm,
+    color: 'rgba(255,255,255,0.8)',
+    letterSpacing: 4,
   },
   card: {
-    marginTop: "auto",
-    marginBottom: 32,
-    marginHorizontal: 16,
-    padding: 16,
-    borderRadius: 18,
-    backgroundColor: "rgba(15,23,42,0.8)",
-    gap: 12,
-    borderWidth: 1,
-    borderColor: "rgba(226,232,240,0.08)",
+    width: '100%',
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    ...shadow.lg,
+  },
+  title: {
+    fontSize: fontSize.xxl,
+    fontWeight: fontWeight.bold,
+    color: colors.text,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: fontSize.md,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceVariant,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    height: 56,
+  },
+  inputIcon: {
+    marginRight: spacing.sm,
   },
   input: {
-    backgroundColor: "transparent",
+    flex: 1,
+    fontSize: fontSize.md,
+    color: colors.text,
   },
   button: {
-    borderRadius: 12,
-    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+    height: 56,
+    marginTop: spacing.md,
+    gap: spacing.sm,
   },
-  helperText: {
-    color: "#cbd5e1",
-    textAlign: "center",
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+    color: colors.white,
+  },
+  footerText: {
+    marginTop: spacing.xl,
+    fontSize: fontSize.sm,
+    color: 'rgba(255,255,255,0.7)',
   },
 });
-
-export default LoginScreen;

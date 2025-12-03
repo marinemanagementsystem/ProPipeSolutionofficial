@@ -115,9 +115,9 @@ const PartnerStatementHistoryModal: React.FC<PartnerStatementHistoryModalProps> 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth fullScreen={fullScreen}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">
+        <span>
           Değişiklik Geçmişi - {MONTH_NAMES[month - 1]} {year}
-        </Typography>
+        </span>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>

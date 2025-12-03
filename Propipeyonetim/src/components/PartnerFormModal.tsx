@@ -140,6 +140,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
             type="number"
             value={formData.sharePercentage}
             onChange={handleChange('sharePercentage')}
+            onFocus={(e) => e.target.select()}
             fullWidth
             required
             InputProps={{
@@ -153,6 +154,7 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
             type="number"
             value={formData.baseSalary}
             onChange={handleChange('baseSalary')}
+            onFocus={(e) => e.target.select()}
             fullWidth
             required
             InputProps={{

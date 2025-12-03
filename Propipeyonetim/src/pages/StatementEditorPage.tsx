@@ -48,7 +48,8 @@ import {
       updateStatement,
       closeStatement,
       getStatementsByProject,
-      getStatementHistory
+      getStatementHistory,
+      recalculateStatementTotals
 } from '../services/projects';
 import type { Project, ProjectStatement, StatementLine, StatementHistoryEntry } from '../types/Project';
 import { useAuth } from '../context/AuthContext';
@@ -117,6 +118,17 @@ const StatementEditorPage: React.FC = () => {
 
                   // Check if this is the only statement (or the first one created)
                   setIsFirstStatement(allStatements.length === 1);
+
+                  // AUTO-SYNC: Eğer statement DRAFT ise ve proje balance'ı farklıysa, senkronize et
+                  if (statementData && projectData && statementData.status === 'DRAFT') {
+                        if (projectData.currentBalance !== statementData.finalBalance) {
+                              console.log('Auto-syncing project balance:', projectData.currentBalance, '->', statementData.finalBalance);
+                              await recalculateStatementTotals(sId); // Trigger recalculation which syncs project balance
+                              // Refresh project data
+                              const updatedProject = await getProjectById(pId);
+                              setProject(updatedProject);
+                        }
+                  }
 
             } catch (error) {
                   console.error("Error fetching data:", error);
@@ -381,22 +393,22 @@ const StatementEditorPage: React.FC = () => {
 
                         {/* NET RESULT CARD */}
                         <Grid size={{ xs: 12, md: 4 }}>
-                              <Card elevation={3} sx={{ bgcolor: netColor.main, color: 'white', height: '100%' }}>
+                              <Card elevation={2} sx={{ bgcolor: netColor.light, height: '100%', borderLeft: `6px solid ${netColor.main}` }}>
                                     <CardContent>
-                                          <Typography variant="subtitle2" gutterBottom fontWeight="bold" sx={{ opacity: 0.8 }}>
+                                          <Typography variant="subtitle2" color={netColor.text} gutterBottom fontWeight="bold">
                                                 NET KASA (SONUÇ)
                                           </Typography>
-                                          <Typography variant="h4" fontWeight="bold">
+                                          <Typography variant="h4" fontWeight="bold" color={netColor.main}>
                                                 {statement.finalBalance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL
                                           </Typography>
                                           <Box display="flex" alignItems="center" mt={1}>
-                                                <Typography variant="caption" display="block" sx={{ opacity: 0.9 }}>
+                                                <Typography variant="caption" display="block" color={netColor.text}>
                                                       Devreden ({statement.previousBalance.toLocaleString('tr-TR')}) + Dönem Net ({statement.totals.netCashReal.toLocaleString('tr-TR')})
                                                 </Typography>
                                                 {isFirstStatement && !isClosed && (
                                                       <IconButton
                                                             size="small"
-                                                            sx={{ ml: 1, color: 'white', opacity: 0.7, '&:hover': { opacity: 1 } }}
+                                                            sx={{ ml: 1, color: netColor.main, '&:hover': { opacity: 0.8 } }}
                                                             onClick={() => {
                                                                   setTempBalance(statement.previousBalance.toString());
                                                                   setOpenBalanceModal(true);

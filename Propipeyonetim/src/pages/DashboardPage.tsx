@@ -131,6 +131,7 @@ const SafeEditModal: React.FC<SafeEditModalProps> = ({
           type="number"
           value={balance}
           onChange={(e) => setBalance(Number(e.target.value))}
+          onFocus={(e) => e.target.select()}
           fullWidth
           sx={{ mt: 2 }}
           InputProps={{
@@ -154,28 +155,47 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUserAuth } = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const surfaceBorder = alpha(
-    theme.palette.mode === 'dark' ? '#a5b4fc' : '#0f172a',
-    theme.palette.mode === 'dark' ? 0.2 : 0.1
-  );
+  const isDark = theme.palette.mode === 'dark';
+
   const glassPanelSx = {
-    p: { xs: 2.5, md: 3 },
-    borderRadius: 4,
-    border: `1px solid ${surfaceBorder}`,
+    p: { xs: 2.5, md: 3.5 },
+    borderRadius: 5,
+    border: `1px solid ${isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.06)}`,
     position: 'relative' as const,
     overflow: 'hidden' as const,
-    background: theme.palette.mode === 'dark'
-      ? 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.98), rgba(245,248,255,0.94))',
-    boxShadow: theme.palette.mode === 'dark'
-      ? '0 24px 60px rgba(0, 0, 0, 0.45)'
+    background: isDark
+      ? 'linear-gradient(145deg, rgba(15, 23, 42, 0.80) 0%, rgba(12, 18, 38, 0.75) 100%)'
+      : 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.90) 100%)',
+    backdropFilter: 'blur(12px)',
+    boxShadow: isDark
+      ? '0 24px 60px rgba(0, 0, 0, 0.50)'
       : '0 24px 60px rgba(15, 23, 42, 0.08)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&:hover': {
+      boxShadow: isDark
+        ? '0 28px 72px rgba(0, 0, 0, 0.60)'
+        : '0 28px 72px rgba(15, 23, 42, 0.12)',
+      transform: 'translateY(-2px)',
+    },
   };
+
   const statCardStyle = (color: string) => ({
-    ...glassPanelSx,
+    p: { xs: 2.5, md: 3 },
+    borderRadius: 5,
     height: '100%',
-    background: `linear-gradient(135deg, ${alpha(color, 0.18)} 0%, ${alpha(color, 0.06)} 100%)`,
-    border: `1px solid ${alpha(color, 0.32)}`,
+    background: isDark
+      ? `linear-gradient(135deg, ${alpha(color, 0.18)} 0%, ${alpha(color, 0.06)} 100%)`
+      : `linear-gradient(135deg, ${alpha(color, 0.12)} 0%, ${alpha(color, 0.04)} 100%)`,
+    border: `1px solid ${alpha(color, isDark ? 0.30 : 0.25)}`,
+    backdropFilter: 'blur(8px)',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: `0 20px 40px ${alpha(color, 0.25)}`,
+      border: `1px solid ${alpha(color, isDark ? 0.45 : 0.40)}`,
+    },
   });
 
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -241,54 +261,64 @@ const DashboardPage: React.FC = () => {
     setSummary(newSummary);
   };
 
-  const expenseChartColor = theme.palette.error.main;
-  const statementChartColor = theme.palette.success.main;
+  const expenseChartColor = '#ef4444';
+  const statementChartColor = '#10b981';
+
+  // Modern renk paleti
+  const colors = {
+    cyan: '#06b6d4',
+    emerald: '#10b981',
+    violet: '#8b5cf6',
+    amber: '#f59e0b',
+    red: '#ef4444',
+  };
+
   const statCards = [
     {
       title: 'Şirket Kasası',
       subtitle: summary?.lastUpdatedAt ? `Son güncelleme: ${formatDate(summary.lastUpdatedAt)}` : 'Toplam banka + nakit',
       value: formatCurrency(summary?.companySafeBalance || 0, summary?.currency),
-      color: theme.palette.primary.main,
-      icon: <AccountBalanceIcon />, 
+      color: colors.cyan,
+      icon: <AccountBalanceIcon />,
       action: () => setSafeModalOpen(true),
     },
     {
       title: 'Tersanelerde Bekleyen',
       subtitle: `Toplam ${summary?.totalProjectsCount || 0} tersane`,
       value: formatCurrency(summary?.totalProjectsBalance || 0),
-      color: theme.palette.info.main,
-      icon: <BusinessIcon />, 
+      color: colors.emerald,
+      icon: <BusinessIcon />,
     },
     {
       title: 'Bu Ay Ödenen Giderler',
       subtitle: 'Sadece ödenen giderler',
       value: formatCurrency(summary?.totalPaidExpensesThisMonth || 0),
-      color: theme.palette.error.main,
-      icon: <ReceiptIcon />, 
+      color: colors.red,
+      icon: <ReceiptIcon />,
     },
     {
       title: 'Ortak Hesap Özeti',
       subtitle: 'Net durum',
       value: formatCurrency((summary?.totalPartnersNegative || 0) - (summary?.totalPartnersPositive || 0)),
-      color: theme.palette.warning.main,
-      icon: <PeopleIcon />, 
+      color: colors.amber,
+      icon: <PeopleIcon />,
       extra: (
-        <Box sx={{ display: 'grid', gap: 0.5, mt: 1 }}>
+        <Box sx={{ display: 'grid', gap: 0.5, mt: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TrendingDownIcon fontSize="small" color="error" />
+            <TrendingDownIcon fontSize="small" sx={{ color: colors.red }} />
             <Typography variant="body2" color="text.secondary">
               Şirketin borcu
             </Typography>
-            <Typography variant="body2" fontWeight={700} color="error.main">
+            <Typography variant="body2" fontWeight={700} sx={{ color: colors.red }}>
               {formatCurrency(summary?.totalPartnersPositive || 0)}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TrendingUpIcon fontSize="small" color="success" />
+            <TrendingUpIcon fontSize="small" sx={{ color: colors.emerald }} />
             <Typography variant="body2" color="text.secondary">
               Ortakların borcu
             </Typography>
-            <Typography variant="body2" fontWeight={700} color="success.main">
+            <Typography variant="body2" fontWeight={700} sx={{ color: colors.emerald }}>
               {formatCurrency(summary?.totalPartnersNegative || 0)}
             </Typography>
           </Box>
@@ -312,70 +342,120 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      {/* Grid Pattern Background */}
       <Box
         sx={{
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)',
+          backgroundImage: isDark
+            ? 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)'
+            : 'linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
-          opacity: theme.palette.mode === 'dark' ? 0.18 : 0.1,
         }}
       />
+      {/* Glow Effects */}
       <Box
         sx={{
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
-          background: `
-            radial-gradient(800px 800px at 12% 20%, ${alpha(theme.palette.primary.main, 0.14)}, transparent),
-            radial-gradient(900px 900px at 82% 0%, ${alpha(theme.palette.info.main, 0.16)}, transparent),
-            radial-gradient(700px 700px at 50% 90%, ${alpha(theme.palette.success.main, 0.12)}, transparent)
-          `,
-          opacity: 0.8,
+          background: isDark
+            ? `
+              radial-gradient(800px 800px at 10% 15%, rgba(6, 182, 212, 0.15), transparent),
+              radial-gradient(700px 700px at 85% 5%, rgba(139, 92, 246, 0.12), transparent),
+              radial-gradient(600px 600px at 50% 85%, rgba(16, 185, 129, 0.10), transparent)
+            `
+            : `
+              radial-gradient(800px 800px at 10% 15%, rgba(6, 182, 212, 0.08), transparent),
+              radial-gradient(700px 700px at 85% 5%, rgba(139, 92, 246, 0.06), transparent),
+              radial-gradient(600px 600px at 50% 85%, rgba(16, 185, 129, 0.05), transparent)
+            `,
         }}
       />
 
-      <Box sx={{ position: 'relative', zIndex: 1, maxWidth: '1400px', mx: 'auto', p: { xs: 2, sm: 3, md: 4 } }}>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ position: 'relative', zIndex: 1, maxWidth: '1440px', mx: 'auto', p: { xs: 2, sm: 3, md: 4 } }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, justifyContent: 'space-between', mb: 4 }}>
           <Box>
-            <Typography variant="overline" sx={{ letterSpacing: '0.16em', color: 'text.secondary' }}>
+            <Typography
+              variant="overline"
+              sx={{
+                letterSpacing: '0.18em',
+                color: isDark ? '#94a3b8' : '#64748b',
+                fontSize: '0.7rem',
+              }}
+            >
               Kontrol Merkezi
             </Typography>
-            <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.02em' }}>
+            <Typography
+              variant="h4"
+              fontWeight={800}
+              sx={{
+                letterSpacing: '-0.02em',
+                background: isDark
+                  ? 'linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%)'
+                  : 'linear-gradient(135deg, #0f172a 0%, #334155 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
               Ana Kumanda Paneli
             </Typography>
-            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+            <Typography color="text.secondary" sx={{ mt: 0.5, maxWidth: 400 }}>
               Finans, network ve proje görünümünü tek ekranda takip edin.
             </Typography>
-            <Box sx={{ mt: 1.5, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Box sx={{ mt: 2, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
               <Chip
                 label={`Kasada ${formatCurrency(summary?.companySafeBalance || 0, summary?.currency)}`}
                 size="small"
-                color="primary"
-                variant="outlined"
-                sx={{ borderRadius: 2 }}
+                sx={{
+                  borderRadius: 3,
+                  bgcolor: isDark ? alpha(colors.cyan, 0.15) : alpha(colors.cyan, 0.10),
+                  color: isDark ? '#22d3ee' : colors.cyan,
+                  border: `1px solid ${alpha(colors.cyan, 0.30)}`,
+                  fontWeight: 600,
+                  px: 0.5,
+                }}
               />
               <Chip
                 label={`${networkActions.length || 0} bekleyen aksiyon`}
                 size="small"
-                color="info"
-                variant="outlined"
-                sx={{ borderRadius: 2 }}
+                sx={{
+                  borderRadius: 3,
+                  bgcolor: isDark ? alpha(colors.violet, 0.15) : alpha(colors.violet, 0.10),
+                  color: isDark ? '#a78bfa' : colors.violet,
+                  border: `1px solid ${alpha(colors.violet, 0.30)}`,
+                  fontWeight: 600,
+                  px: 0.5,
+                }}
               />
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}
               onClick={loadData}
               disabled={loading}
-              sx={{ borderRadius: 2 }}
+              sx={{ borderRadius: 3, px: 2.5 }}
             >
               Yenile
             </Button>
-            <Button variant="contained" onClick={() => setSafeModalOpen(true)} sx={{ borderRadius: 2 }}>
+            <Button
+              variant="contained"
+              onClick={() => setSafeModalOpen(true)}
+              sx={{
+                borderRadius: 3,
+                px: 2.5,
+                background: `linear-gradient(135deg, ${colors.cyan} 0%, ${colors.emerald} 100%)`,
+                boxShadow: `0 8px 24px ${alpha(colors.cyan, 0.35)}`,
+                '&:hover': {
+                  background: `linear-gradient(135deg, #0891b2 0%, #059669 100%)`,
+                  boxShadow: `0 12px 32px ${alpha(colors.cyan, 0.45)}`,
+                },
+              }}
+            >
               Kasayı Güncelle
             </Button>
           </Box>
@@ -385,52 +465,85 @@ const DashboardPage: React.FC = () => {
           <LinearProgress
             sx={{
               mb: 3,
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: alpha(theme.palette.primary.main, 0.08),
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: isDark ? alpha(colors.cyan, 0.15) : alpha(colors.cyan, 0.10),
+              '& .MuiLinearProgress-bar': {
+                background: `linear-gradient(90deg, ${colors.cyan}, ${colors.emerald})`,
+                borderRadius: 2,
+              },
             }}
           />
         )}
 
-        <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
           {statCards.map((card) => (
             <Grid key={card.title} size={{ xs: 12, sm: 6, md: 3 }}>
               <Card elevation={0} sx={statCardStyle(card.color)}>
-                <CardContent sx={{ p: { xs: 2.25, md: 2.5 } }}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <CardContent sx={{ p: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Box
                         sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 2,
+                          width: 48,
+                          height: 48,
+                          borderRadius: 3,
                           display: 'grid',
                           placeItems: 'center',
-                          backgroundColor: alpha(card.color, 0.12),
+                          background: `linear-gradient(135deg, ${alpha(card.color, 0.20)} 0%, ${alpha(card.color, 0.08)} 100%)`,
                           color: card.color,
-                          boxShadow: `0 12px 30px ${alpha(card.color, 0.2)}`,
+                          boxShadow: `0 8px 24px ${alpha(card.color, 0.25)}`,
+                          border: `1px solid ${alpha(card.color, 0.20)}`,
                         }}
                       >
                         {card.icon}
                       </Box>
                       <Box>
-                        <Typography variant="subtitle2" color="text.secondary" sx={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase',
+                            fontSize: '0.7rem',
+                            color: isDark ? '#94a3b8' : '#64748b',
+                            fontWeight: 600,
+                          }}
+                        >
                           {card.title}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
                           {card.subtitle}
                         </Typography>
                       </Box>
                     </Box>
                     {card.action && (
                       <Tooltip title="Düzenle">
-                        <IconButton size="small" onClick={card.action} sx={{ color: card.color }}>
+                        <IconButton
+                          size="small"
+                          onClick={card.action}
+                          sx={{
+                            color: card.color,
+                            bgcolor: alpha(card.color, 0.10),
+                            border: `1px solid ${alpha(card.color, 0.20)}`,
+                            '&:hover': {
+                              bgcolor: alpha(card.color, 0.20),
+                            },
+                          }}
+                        >
                           <EditIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                     )}
                   </Box>
-                  <Typography variant="h4" fontWeight={800} sx={{ color: card.color, mb: card.extra ? 1 : 0 }}>
+                  <Typography
+                    variant="h4"
+                    fontWeight={800}
+                    sx={{
+                      color: card.color,
+                      mb: card.extra ? 0 : 0,
+                      textShadow: isDark ? `0 2px 20px ${alpha(card.color, 0.30)}` : 'none',
+                    }}
+                  >
                     {card.value}
                   </Typography>
                   {card.extra}
@@ -440,27 +553,44 @@ const DashboardPage: React.FC = () => {
           ))}
         </Grid>
 
-        <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ ...glassPanelSx, height: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                 <Box>
-                  <Typography variant="overline" sx={{ letterSpacing: '0.12em', color: 'text.secondary' }}>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      letterSpacing: '0.14em',
+                      color: isDark ? '#94a3b8' : '#64748b',
+                      fontSize: '0.65rem',
+                    }}
+                  >
                     Giderler
                   </Typography>
                   <Typography variant="h6" fontWeight={700}>
                     Son 6 Ay Ödenen Giderler
                   </Typography>
                 </Box>
-                <Chip label="Trend" size="small" color="error" variant="outlined" />
+                <Chip
+                  label="Trend"
+                  size="small"
+                  sx={{
+                    borderRadius: 2,
+                    bgcolor: alpha(colors.red, 0.12),
+                    color: colors.red,
+                    border: `1px solid ${alpha(colors.red, 0.25)}`,
+                    fontWeight: 600,
+                  }}
+                />
               </Box>
-              <Box sx={{ height: 300 }}>
+              <Box sx={{ height: 300, minWidth: 0, position: 'relative' }}>
                 {loading ? (
                   <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                     <CircularProgress />
                   </Box>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height={280} minWidth={0}>
                     <BarChart data={expensesTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.3)} />
                       <XAxis 
@@ -495,24 +625,41 @@ const DashboardPage: React.FC = () => {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Paper elevation={0} sx={{ ...glassPanelSx, height: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                 <Box>
-                  <Typography variant="overline" sx={{ letterSpacing: '0.12em', color: 'text.secondary' }}>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      letterSpacing: '0.14em',
+                      color: isDark ? '#94a3b8' : '#64748b',
+                      fontSize: '0.65rem',
+                    }}
+                  >
                     Hakediş
                   </Typography>
                   <Typography variant="h6" fontWeight={700}>
                     Son 6 Ay Hakediş Net Sonuçları
                   </Typography>
                 </Box>
-                <Chip label="Net" size="small" color="success" variant="outlined" />
+                <Chip
+                  label="Net"
+                  size="small"
+                  sx={{
+                    borderRadius: 2,
+                    bgcolor: alpha(colors.emerald, 0.12),
+                    color: colors.emerald,
+                    border: `1px solid ${alpha(colors.emerald, 0.25)}`,
+                    fontWeight: 600,
+                  }}
+                />
               </Box>
-              <Box sx={{ height: 300 }}>
+              <Box sx={{ height: 300, minWidth: 0, position: 'relative' }}>
                 {loading ? (
                   <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                     <CircularProgress />
                   </Box>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height={280} minWidth={0}>
                     <BarChart data={statementsTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.divider, 0.3)} />
                       <XAxis 
@@ -557,17 +704,34 @@ const DashboardPage: React.FC = () => {
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Paper elevation={0} sx={{ ...glassPanelSx, height: isMobile ? 'auto' : 400 }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Paper elevation={0} sx={{ ...glassPanelSx, height: isMobile ? 'auto' : 420 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Box>
-                  <Typography variant="overline" sx={{ letterSpacing: '0.12em', color: 'text.secondary' }}>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      letterSpacing: '0.14em',
+                      color: isDark ? '#94a3b8' : '#64748b',
+                      fontSize: '0.65rem',
+                    }}
+                  >
                     Network
                   </Typography>
                   <Typography variant="h6" fontWeight={700}>
                     Bugün / Yakında Aranacak Firmalar
                   </Typography>
                 </Box>
-                <Button size="small" onClick={() => navigate('/network')}>
+                <Button
+                  size="small"
+                  onClick={() => navigate('/network')}
+                  sx={{
+                    borderRadius: 2,
+                    color: isDark ? '#22d3ee' : colors.cyan,
+                    '&:hover': {
+                      bgcolor: alpha(colors.cyan, 0.10),
+                    },
+                  }}
+                >
                   Tümünü Gör
                 </Button>
               </Box>
@@ -584,7 +748,7 @@ const DashboardPage: React.FC = () => {
                   </Typography>
                 </Box>
               ) : (
-                <Box sx={{ display: 'grid', gap: 1.5, maxHeight: 300, overflowY: 'auto', pr: 0.5 }}>
+                <Box sx={{ display: 'grid', gap: 2, maxHeight: 320, overflowY: 'auto', pr: 0.5 }}>
                   {networkActions.map((item) => (
                     <Box
                       key={item.id}
@@ -593,57 +757,82 @@ const DashboardPage: React.FC = () => {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         gap: 2,
-                        p: 1.5,
-                        borderRadius: 3,
-                        border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
-                        backgroundColor: item.isOverdue ? alpha(theme.palette.error.main, 0.06) : alpha(theme.palette.primary.main, 0.04),
+                        p: 2,
+                        borderRadius: 4,
+                        border: `1px solid ${item.isOverdue
+                          ? alpha(colors.red, 0.30)
+                          : isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.06)}`,
+                        backgroundColor: item.isOverdue
+                          ? alpha(colors.red, 0.08)
+                          : isDark ? alpha('#ffffff', 0.03) : alpha('#0f172a', 0.02),
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         '&:hover': {
-                          borderColor: alpha(theme.palette.primary.main, 0.5),
+                          borderColor: item.isOverdue
+                            ? alpha(colors.red, 0.50)
+                            : alpha(colors.cyan, 0.40),
                           transform: 'translateY(-2px)',
+                          backgroundColor: item.isOverdue
+                            ? alpha(colors.red, 0.12)
+                            : isDark ? alpha('#ffffff', 0.06) : alpha(colors.cyan, 0.05),
                         },
                       }}
                       onClick={() => navigate('/network')}
                     >
-                      <Box sx={{ display: 'grid', gap: 0.2 }}>
+                      <Box sx={{ display: 'grid', gap: 0.5 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           {item.isOverdue && (
                             <Tooltip title="Gecikmiş">
-                              <WarningIcon fontSize="small" color="error" />
+                              <WarningIcon fontSize="small" sx={{ color: colors.red }} />
                             </Tooltip>
                           )}
                           <Typography variant="body1" fontWeight={700}>
                             {item.companyName}
                           </Typography>
                         </Box>
-                        <Box display="flex" alignItems="center" gap={0.75} color="text.secondary">
+                        <Box display="flex" alignItems="center" gap={1} color="text.secondary">
                           <Typography variant="body2">{item.contactPerson}</Typography>
                           {item.phone && (
                             <Tooltip title={item.phone}>
-                              <PhoneIcon fontSize="small" color="action" />
+                              <PhoneIcon fontSize="small" sx={{ color: isDark ? '#94a3b8' : '#64748b' }} />
                             </Tooltip>
                           )}
                         </Box>
                       </Box>
                       <Box sx={{ textAlign: 'right' }}>
-                        <Typography 
-                          variant="body2" 
-                          color={item.isOverdue ? 'error.main' : 'text.primary'}
-                          fontWeight={item.isOverdue ? 'bold' : 600}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: item.isOverdue ? colors.red : (isDark ? '#f1f5f9' : '#0f172a'),
+                            fontWeight: item.isOverdue ? 700 : 600,
+                          }}
                         >
                           {formatDateShort(item.nextActionDate)}
                         </Typography>
                         <Chip
                           label={getQuoteStatusLabelTR(item.quoteStatus)}
                           size="small"
-                          variant="outlined"
-                          color={
-                            item.quoteStatus === 'TEKLIF_VERILDI' ? 'success' :
-                            item.quoteStatus === 'GORUSME_DEVAM_EDIYOR' ? 'info' :
-                            'default'
-                          }
-                          sx={{ mt: 0.5 }}
+                          sx={{
+                            mt: 0.5,
+                            borderRadius: 2,
+                            fontSize: '0.65rem',
+                            height: 22,
+                            bgcolor: item.quoteStatus === 'TEKLIF_VERILDI'
+                              ? alpha(colors.emerald, 0.12)
+                              : item.quoteStatus === 'GORUSME_DEVAM_EDIYOR'
+                                ? alpha(colors.cyan, 0.12)
+                                : isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.06),
+                            color: item.quoteStatus === 'TEKLIF_VERILDI'
+                              ? colors.emerald
+                              : item.quoteStatus === 'GORUSME_DEVAM_EDIYOR'
+                                ? (isDark ? '#22d3ee' : colors.cyan)
+                                : 'text.secondary',
+                            border: `1px solid ${item.quoteStatus === 'TEKLIF_VERILDI'
+                              ? alpha(colors.emerald, 0.25)
+                              : item.quoteStatus === 'GORUSME_DEVAM_EDIYOR'
+                                ? alpha(colors.cyan, 0.25)
+                                : isDark ? alpha('#ffffff', 0.10) : alpha('#0f172a', 0.10)}`,
+                          }}
                         />
                       </Box>
                     </Box>
@@ -654,11 +843,18 @@ const DashboardPage: React.FC = () => {
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <Paper elevation={0} sx={{ ...glassPanelSx, height: isMobile ? 'auto' : 400 }}>
-              <Typography variant="overline" sx={{ letterSpacing: '0.12em', color: 'text.secondary' }}>
+            <Paper elevation={0} sx={{ ...glassPanelSx, height: isMobile ? 'auto' : 420 }}>
+              <Typography
+                variant="overline"
+                sx={{
+                  letterSpacing: '0.14em',
+                  color: isDark ? '#94a3b8' : '#64748b',
+                  fontSize: '0.65rem',
+                }}
+              >
                 Hareketler
               </Typography>
-              <Typography variant="h6" fontWeight={700} mb={2}>
+              <Typography variant="h6" fontWeight={700} mb={3}>
                 Son Hareketler
               </Typography>
 
@@ -677,7 +873,7 @@ const DashboardPage: React.FC = () => {
                         Gider kaydı bulunmuyor
                       </Typography>
                     ) : (
-                      <Box sx={{ display: 'grid', gap: 1 }}>
+                      <Box sx={{ display: 'grid', gap: 1.5 }}>
                         {latestExpenses.map((expense) => (
                           <Box
                             key={expense.id}
@@ -685,33 +881,47 @@ const DashboardPage: React.FC = () => {
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'center',
-                              p: 1.25,
+                              p: 1.5,
                               borderRadius: 3,
-                              border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
-                              backgroundColor: alpha(theme.palette.error.main, 0.04),
-                              transition: 'all 0.2s ease',
+                              border: `1px solid ${isDark ? alpha('#ffffff', 0.08) : alpha(colors.red, 0.15)}`,
+                              backgroundColor: alpha(colors.red, isDark ? 0.06 : 0.04),
+                              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                               cursor: 'pointer',
-                              '&:hover': { borderColor: alpha(theme.palette.error.main, 0.5), transform: 'translateY(-2px)' },
+                              '&:hover': {
+                                borderColor: alpha(colors.red, 0.40),
+                                transform: 'translateY(-2px)',
+                                backgroundColor: alpha(colors.red, isDark ? 0.10 : 0.08),
+                              },
                             }}
                             onClick={() => navigate('/expenses')}
                           >
                             <Box>
-                              <Typography variant="body2" fontWeight="medium">
+                              <Typography variant="body2" fontWeight={600}>
                                 {expense.description}
                               </Typography>
-                              <Box display="flex" gap={1} alignItems="center">
+                              <Box display="flex" gap={1} alignItems="center" mt={0.5}>
                                 <Typography variant="caption" color="text.secondary">
                                   {formatDateShort(expense.date)}
                                 </Typography>
                                 <Chip
                                   label={getExpenseStatusLabel(expense.status)}
                                   size="small"
-                                  color={expense.status === 'PAID' ? 'success' : 'warning'}
-                                  sx={{ height: 18, fontSize: '0.65rem' }}
+                                  sx={{
+                                    height: 20,
+                                    fontSize: '0.6rem',
+                                    borderRadius: 1.5,
+                                    bgcolor: expense.status === 'PAID'
+                                      ? alpha(colors.emerald, 0.12)
+                                      : alpha(colors.amber, 0.12),
+                                    color: expense.status === 'PAID' ? colors.emerald : colors.amber,
+                                    border: `1px solid ${expense.status === 'PAID'
+                                      ? alpha(colors.emerald, 0.25)
+                                      : alpha(colors.amber, 0.25)}`,
+                                  }}
                                 />
                               </Box>
                             </Box>
-                            <Typography variant="body2" fontWeight="bold" color="error.main">
+                            <Typography variant="body2" fontWeight={700} sx={{ color: colors.red }}>
                               {formatCurrency(expense.amount)}
                             </Typography>
                           </Box>
@@ -731,7 +941,7 @@ const DashboardPage: React.FC = () => {
                         Kapatılmış hakediş bulunmuyor
                       </Typography>
                     ) : (
-                      <Box sx={{ display: 'grid', gap: 1 }}>
+                      <Box sx={{ display: 'grid', gap: 1.5 }}>
                         {latestStatements.map((statement) => (
                           <Box
                             key={statement.id}
@@ -739,36 +949,48 @@ const DashboardPage: React.FC = () => {
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'center',
-                              p: 1.25,
+                              p: 1.5,
                               borderRadius: 3,
-                              border: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
-                              backgroundColor: alpha(theme.palette.success.main, 0.04),
-                              transition: 'all 0.2s ease',
+                              border: `1px solid ${isDark ? alpha('#ffffff', 0.08) : alpha(colors.emerald, 0.15)}`,
+                              backgroundColor: alpha(colors.emerald, isDark ? 0.06 : 0.04),
+                              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                               cursor: 'pointer',
-                              '&:hover': { borderColor: alpha(theme.palette.success.main, 0.5), transform: 'translateY(-2px)' },
+                              '&:hover': {
+                                borderColor: alpha(colors.emerald, 0.40),
+                                transform: 'translateY(-2px)',
+                                backgroundColor: alpha(colors.emerald, isDark ? 0.10 : 0.08),
+                              },
                             }}
                             onClick={() => navigate(`/projects/${statement.projectId}`)}
                           >
                             <Box>
-                              <Typography variant="body2" fontWeight="medium">
+                              <Typography variant="body2" fontWeight={600}>
                                 {statement.projectName} - {statement.title}
                               </Typography>
-                              <Box display="flex" gap={1} alignItems="center">
+                              <Box display="flex" gap={1} alignItems="center" mt={0.5}>
                                 <Typography variant="caption" color="text.secondary">
                                   {formatDateShort(statement.date)}
                                 </Typography>
                                 <Chip
                                   label={getTransferActionLabel(statement.transferAction)}
                                   size="small"
-                                  variant="outlined"
-                                  sx={{ height: 18, fontSize: '0.65rem' }}
+                                  sx={{
+                                    height: 20,
+                                    fontSize: '0.6rem',
+                                    borderRadius: 1.5,
+                                    bgcolor: isDark ? alpha('#ffffff', 0.08) : alpha('#0f172a', 0.06),
+                                    color: 'text.secondary',
+                                    border: `1px solid ${isDark ? alpha('#ffffff', 0.12) : alpha('#0f172a', 0.10)}`,
+                                  }}
                                 />
                               </Box>
                             </Box>
-                            <Typography 
-                              variant="body2" 
-                              fontWeight="bold" 
-                              color={statement.totals?.netCashReal >= 0 ? 'success.main' : 'error.main'}
+                            <Typography
+                              variant="body2"
+                              fontWeight={700}
+                              sx={{
+                                color: statement.totals?.netCashReal >= 0 ? colors.emerald : colors.red,
+                              }}
                             >
                               {formatCurrency(statement.totals?.netCashReal || 0)}
                             </Typography>

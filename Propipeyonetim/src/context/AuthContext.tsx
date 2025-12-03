@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
@@ -33,40 +33,79 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
       const [loading, setLoading] = useState(true);
 
+      // Race condition'ı önlemek için son user uid'ini takip et
+      const currentUserIdRef = useRef<string | null>(null);
+      // Component mount durumunu takip et
+      const isMountedRef = useRef(true);
+
+      // User profile fetch fonksiyonu - race condition korumalı
+      const fetchUserProfile = useCallback(async (user: User) => {
+            const userId = user.uid;
+            // Bu user'ın hala aktif user olup olmadığını kontrol et
+            if (currentUserIdRef.current !== userId) {
+                  return; // Farklı bir user aktif, bu işlemi iptal et
+            }
+
+            try {
+                  const userDocRef = doc(db, 'users', userId);
+                  const userDoc = await getDoc(userDocRef);
+
+                  // Async işlem sonrası tekrar kontrol et
+                  if (!isMountedRef.current || currentUserIdRef.current !== userId) {
+                        return; // Component unmount olmuş veya user değişmiş
+                  }
+
+                  if (userDoc.exists()) {
+                        setCurrentUserProfile(userDoc.data() as UserProfile);
+                  } else {
+                        // Fallback if profile doesn't exist
+                        console.warn('User profile not found for uid:', userId);
+                        setCurrentUserProfile({
+                              id: userId,
+                              email: user.email || '',
+                              displayName: user.displayName || user.email?.split('@')[0] || 'Kullanıcı',
+                              role: 'ORTAK', // Default role
+                              createdAt: {} as any, // Placeholder
+                              updatedAt: {} as any // Placeholder
+                        });
+                  }
+            } catch (error) {
+                  // Hata durumunda da kontrol et
+                  if (!isMountedRef.current || currentUserIdRef.current !== userId) {
+                        return;
+                  }
+                  console.error('Error fetching user profile:', error);
+                  setCurrentUserProfile(null);
+            }
+      }, []);
+
       useEffect(() => {
+            isMountedRef.current = true;
+
             const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                  if (!isMountedRef.current) return;
+
+                  // Önce current user id'yi güncelle (race condition koruması)
+                  currentUserIdRef.current = user?.uid || null;
+
                   setCurrentUserAuth(user);
+
                   if (user) {
-                        // Fetch user profile from Firestore
-                        try {
-                              const userDocRef = doc(db, 'users', user.uid);
-                              const userDoc = await getDoc(userDocRef);
-                              if (userDoc.exists()) {
-                                    setCurrentUserProfile(userDoc.data() as UserProfile);
-                              } else {
-                                    // Fallback if profile doesn't exist
-                                    console.warn('User profile not found for uid:', user.uid);
-                                    setCurrentUserProfile({
-                                          id: user.uid,
-                                          email: user.email || '',
-                                          displayName: user.displayName || user.email?.split('@')[0] || 'Kullanıcı',
-                                          role: 'ORTAK', // Default role
-                                          createdAt: {} as any, // Placeholder
-                                          updatedAt: {} as any // Placeholder
-                                    });
-                              }
-                        } catch (error) {
-                              console.error('Error fetching user profile:', error);
-                              setCurrentUserProfile(null);
-                        }
+                        await fetchUserProfile(user);
                   } else {
                         setCurrentUserProfile(null);
                   }
-                  setLoading(false);
+
+                  if (isMountedRef.current) {
+                        setLoading(false);
+                  }
             });
 
-            return unsubscribe;
-      }, []);
+            return () => {
+                  isMountedRef.current = false;
+                  unsubscribe();
+            };
+      }, [fetchUserProfile]);
 
       const login = async (email: string, password: string) => {
             await signInWithEmailAndPassword(auth, email, password);

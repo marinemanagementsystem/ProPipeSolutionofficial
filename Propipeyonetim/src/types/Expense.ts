@@ -4,7 +4,7 @@ export type ExpenseType = "COMPANY_OFFICIAL" | "PERSONAL" | "ADVANCE";
 export type ExpenseStatus = "PAID" | "UNPAID";
 export type Currency = "TRY" | "EUR" | "USD";
 export type PaymentMethod = "CASH" | "CARD" | "TRANSFER";
-export type UserRole = "ADMIN" | "ORTAK" | "MUHASEBE";
+export type UserRole = "ADMIN" | "super_admin" | "ORTAK" | "MUHASEBE";
 
 export interface UserProfile {
       id: string;

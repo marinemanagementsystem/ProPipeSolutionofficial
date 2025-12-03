@@ -1,4 +1,3 @@
-import "react-native-get-random-values";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
