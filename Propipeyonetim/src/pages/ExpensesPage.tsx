@@ -667,13 +667,21 @@ const ExpensesPage: React.FC = () => {
 
                         {/* Content Area */}
                         {viewMode === 'TABLE' ? (
-                              <TableContainer 
-                                    component={Paper} 
-                                    elevation={0} 
-                                    sx={{ 
-                                          borderRadius: 3, 
+                              <TableContainer
+                                    component={Paper}
+                                    elevation={0}
+                                    sx={{
+                                          borderRadius: 3,
                                           border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                                           overflowX: 'auto',
+                                          WebkitOverflowScrolling: 'touch',
+                                          '&::-webkit-scrollbar': {
+                                                height: 8,
+                                          },
+                                          '&::-webkit-scrollbar-thumb': {
+                                                backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                                                borderRadius: 4,
+                                          },
                                     }}
                               >
                                     <Table sx={{ minWidth: 800 }}>

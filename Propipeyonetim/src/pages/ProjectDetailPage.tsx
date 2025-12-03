@@ -196,8 +196,23 @@ const ProjectDetailPage: React.FC = () => {
                   {statements.length === 0 ? (
                         <Alert severity="info">Bu tersane için henüz hakediş dosyası oluşturulmamış.</Alert>
                   ) : (
-                        <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2 }}>
-                              <Table>
+                        <TableContainer
+                              component={Paper}
+                              elevation={2}
+                              sx={{
+                                    borderRadius: 2,
+                                    overflowX: 'auto',
+                                    WebkitOverflowScrolling: 'touch',
+                                    '&::-webkit-scrollbar': {
+                                          height: 8,
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                          backgroundColor: 'rgba(0,0,0,0.2)',
+                                          borderRadius: 4,
+                                    },
+                              }}
+                        >
+                              <Table sx={{ minWidth: 900 }}>
                                     <TableHead sx={{ bgcolor: '#f5f5f5' }}>
                                           <TableRow>
                                                 <TableCell><strong>Tarih</strong></TableCell>

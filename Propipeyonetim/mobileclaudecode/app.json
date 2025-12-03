@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "ProPipe Yönetim",
+    "slug": "propipeyonetim-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0c1226"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.propipesolution.yonetim"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0c1226"
+      },
+      "package": "com.propipesolution.yonetim",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": []
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Fişleri yüklemek için fotoğraflara erişim gereklidir.",
+          "cameraPermission": "Fiş fotoğrafı çekmek için kamera erişimi gereklidir."
+        }
+      ]
+    ],
+    "owner": "infomms",
+    "extra": {
+      "eas": {
+        "projectId": "d60f13d1-66c8-4e1f-a2c4-87e1e2f4a2c6"
+      }
+    }
+  }
+}

@@ -713,15 +713,24 @@ const NetworkPage: React.FC = () => {
                         </Paper>
 
                         {/* Table */}
-                        <TableContainer 
-                              component={Paper} 
+                        <TableContainer
+                              component={Paper}
                               elevation={0}
-                              sx={{ 
+                              sx={{
                                     borderRadius: 4,
                                     border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                                    overflowX: 'auto',
+                                    WebkitOverflowScrolling: 'touch',
+                                    '&::-webkit-scrollbar': {
+                                          height: 8,
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                          backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                                          borderRadius: 4,
+                                    },
                               }}
                         >
-                              <Table>
+                              <Table sx={{ minWidth: 1000 }}>
                                     <TableHead>
                                           <TableRow>
                                                 <TableCell>Firma Adı</TableCell>

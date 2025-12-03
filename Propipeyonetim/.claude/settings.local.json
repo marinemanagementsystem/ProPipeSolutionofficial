@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(node scripts/create-assets.js:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx expo doctor:*)",
+      "Bash(npx eas-cli:*)",
+      "Bash(npx eas:*)",
+      "Bash(npx expo export:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npx expo-doctor:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

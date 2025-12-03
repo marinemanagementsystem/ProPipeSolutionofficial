@@ -166,7 +166,7 @@ const PartnersPage: React.FC = () => {
             onClick={() => setShowInactive(!showInactive)}
             startIcon={showInactive ? <ToggleOnIcon /> : <ToggleOffIcon />}
           >
-            {showInactive ? 'Pasifleri Gizle' : 'Pasifleri Göster'}
+            {showInactive ? 'Pasif Ortaklarıi Gizle' : 'Pasif Ortaklarıi Göster'}
           </Button>
           <Button
             variant="contained"
@@ -189,8 +189,22 @@ const PartnersPage: React.FC = () => {
       )}
 
       {/* Ortak Tablosu */}
-      <TableContainer component={Paper} elevation={2} sx={{ overflowX: 'auto' }}>
-        <Table sx={{ minWidth: 650 }}>
+      <TableContainer
+        component={Paper}
+        elevation={2}
+        sx={{
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          '&::-webkit-scrollbar': {
+            height: 8,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            borderRadius: 4,
+          },
+        }}
+      >
+        <Table sx={{ minWidth: 800 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: 'primary.main' }}>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Ortak Adı</TableCell>
