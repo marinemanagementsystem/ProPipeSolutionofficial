@@ -49,12 +49,15 @@ const NetworkScreen: React.FC = () => {
 
   const getResultColor = (result?: string) => {
     switch (result) {
-      case 'IS_ALINDI':
+      case 'KAZANILDI':
+        return 'success';
+      case 'IS_ALINDI': // legacy
         return 'success';
       case 'RED':
       case 'DONUS_YOK':
         return 'error';
-      case 'DEVAM_EDIYOR':
+      case 'BEKLEMEDE':
+      case 'DEVAM_EDIYOR': // legacy
         return 'warning';
       default:
         return 'default';

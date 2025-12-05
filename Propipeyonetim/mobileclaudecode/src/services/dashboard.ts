@@ -18,6 +18,8 @@ import type {
   Partner,
   NetworkContact,
   CompanyOverview,
+  StatementWithProject,
+  StatementTrendItem,
 } from '../types';
 
 // ==================== HELPERS ====================
@@ -45,33 +47,9 @@ const getMonthRange = (year: number, month: number): { start: Date; end: Date } 
 };
 
 // ==================== COMPANY OVERVIEW ====================
+// Note: getCompanyOverview is now exported from companyOverview.ts
 
-export const getCompanyOverview = async (): Promise<CompanyOverview> => {
-  try {
-    const docRef = doc(db, 'company_overview', 'main');
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as CompanyOverview;
-    }
-
-    // Default values
-    return {
-      id: 'main',
-      companySafeBalance: 0,
-      currency: 'TRY',
-      lastUpdatedAt: null,
-    };
-  } catch (error) {
-    console.error('Error fetching company overview:', error);
-    return {
-      id: 'main',
-      companySafeBalance: 0,
-      currency: 'TRY',
-      lastUpdatedAt: null,
-    };
-  }
-};
+import { getCompanyOverview } from './companyOverview';
 
 // ==================== DASHBOARD SUMMARY ====================
 
@@ -368,6 +346,11 @@ export const getCategoryLabel = (category: string): string => {
 
 export const getPaymentMethodLabel = (method: string): string => {
   const labels: Record<string, string> = {
+    // Yeni değerler (web ile uyumlu)
+    CASH: 'Nakit',
+    CARD: 'Kredi Kartı',
+    TRANSFER: 'Havale',
+    // Eski değerler için geriye dönük destek
     NAKIT: 'Nakit',
     HAVALE: 'Havale',
     KREDI_KARTI: 'Kredi Kartı',
@@ -378,6 +361,11 @@ export const getPaymentMethodLabel = (method: string): string => {
 
 export const getContactStatusLabel = (status: string): string => {
   const labels: Record<string, string> = {
+    // Yeni değerler (web ile uyumlu)
+    ULASILDI: 'Ulaşıldı',
+    ULASILMIYOR: 'Ulaşılmıyor',
+    BEKLEMEDE: 'Beklemede',
+    // Eski değerler için geriye dönük destek
     ILK_TEMAS: 'İlk Temas',
     TEKLIF_ASAMASI: 'Teklif Aşaması',
     GORUSME_DEVAM: 'Görüşme Devam',
@@ -388,11 +376,109 @@ export const getContactStatusLabel = (status: string): string => {
 
 export const getResultLabel = (result: string): string => {
   const labels: Record<string, string> = {
-    IS_ALINDI: 'İş Alındı',
+    // Yeni değerler (web ile uyumlu)
+    BEKLEMEDE: 'Beklemede',
+    KAZANILDI: 'Kazanıldı',
     RED: 'Red',
     IS_YOK: 'İş Yok',
-    DEVAM_EDIYOR: 'Devam Ediyor',
     DONUS_YOK: 'Dönüş Yok',
+    // Eski değerler için geriye dönük destek
+    IS_ALINDI: 'Kazanıldı',
+    DEVAM_EDIYOR: 'Devam Ediyor',
   };
   return labels[result] || result;
+};
+
+export const getTransferActionLabel = (action: string): string => {
+  const labels: Record<string, string> = {
+    NONE: 'İşlem Yok',
+    TRANSFERRED_TO_SAFE: 'Kasaya Aktarıldı',
+    CARRIED_OVER: 'Devredildi',
+  };
+  return labels[action] || action;
+};
+
+// ==================== STATEMENT TRENDS ====================
+
+/**
+ * Son 6 ay hakediş net sonuç trendini getir
+ */
+export const getLast6MonthsStatementsTrend = async (): Promise<StatementTrendItem[]> => {
+  const months = getLastNMonthsRanges(6);
+
+  const firstMonth = months[0];
+  const lastMonth = months[months.length - 1];
+  const startDate = new Date(firstMonth.year, firstMonth.month, 1);
+  const endDate = new Date(lastMonth.year, lastMonth.month + 1, 0, 23, 59, 59);
+
+  const statementsRef = collection(db, 'project_statements');
+  const q = query(statementsRef, where('status', '==', 'CLOSED'));
+
+  const snapshot = await getDocs(q);
+
+  const monthlyData: Record<string, { total: number; count: number }> = {};
+  months.forEach(m => {
+    monthlyData[m.key] = { total: 0, count: 0 };
+  });
+
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data() as ProjectStatement;
+    if (data.date) {
+      const statementDate = safeToDate(data.date);
+      if (statementDate && statementDate >= startDate && statementDate <= endDate) {
+        const monthKey = timestampToMonthKey(data.date);
+        if (monthKey && monthlyData[monthKey]) {
+          monthlyData[monthKey].total += data.totals?.netCashReal || 0;
+          monthlyData[monthKey].count += 1;
+        }
+      }
+    }
+  });
+
+  return months.map(m => ({
+    monthLabel: m.label,
+    monthKey: m.key,
+    totalNetCash: monthlyData[m.key].total,
+    statementCount: monthlyData[m.key].count,
+  }));
+};
+
+/**
+ * Son N kapatılmış hakedişi getir (proje adı ile birlikte)
+ */
+export const getLatestClosedStatements = async (limitCount: number = 5): Promise<StatementWithProject[]> => {
+  // Önce projeleri çek (isim eşleştirmesi için)
+  const projectsRef = collection(db, 'projects');
+  const projectsSnapshot = await getDocs(projectsRef);
+  const projectsMap: Record<string, string> = {};
+  projectsSnapshot.forEach((docSnap) => {
+    const data = docSnap.data() as Project;
+    projectsMap[docSnap.id] = data.name;
+  });
+
+  // Kapatılmış hakedişleri getir
+  const statementsRef = collection(db, 'project_statements');
+  const q = query(statementsRef, where('status', '==', 'CLOSED'));
+
+  const snapshot = await getDocs(q);
+
+  // JS'de sırala ve limit uygula
+  const allStatements: StatementWithProject[] = [];
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data() as ProjectStatement;
+    allStatements.push({
+      ...data,
+      id: docSnap.id,
+      projectName: projectsMap[data.projectId] || 'Bilinmeyen Tersane',
+    } as StatementWithProject);
+  });
+
+  // Tarihe göre sırala (en yeniden en eskiye)
+  allStatements.sort((a, b) => {
+    const dateA = safeToDate(a.date)?.getTime() || 0;
+    const dateB = safeToDate(b.date)?.getTime() || 0;
+    return dateB - dateA;
+  });
+
+  return allStatements.slice(0, limitCount);
 };

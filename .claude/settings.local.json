@@ -9,7 +9,11 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\npropipestableyonetim\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git push)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(dir /b \"c:\\dev\\PPSSofficial\\Propipeyonetim\\src\\types\")",
+      "Bash(dir \"c:\\dev\\PPSSofficial\\Propipeyonetim\\public\")",
+      "Bash(copy \"c:\\dev\\PPSSofficial\\Propipeyonetim\\mobileclaudecode\\logo.png\" \"c:\\dev\\PPSSofficial\\Propipeyonetim\\public\\logo.png\")",
+      "Bash(dir \"c:\\dev\\PPSSofficial\\Resmi\")"
     ],
     "deny": [],
     "ask": []

@@ -125,24 +125,20 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               }}
             >
               <Box
+                component="img"
+                src={`${import.meta.env.BASE_URL}logo.png`}
+                alt="PRO PIPE|STEEL Logo"
                 sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 3,
-                  background: 'linear-gradient(135deg, #06b6d4 0%, #10b981 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 8px 24px rgba(6, 182, 212, 0.35)',
+                  width: 48,
+                  height: 48,
+                  borderRadius: 2,
+                  objectFit: 'contain',
                   transition: 'all 0.3s ease',
                   '&:hover': {
                     transform: 'scale(1.05)',
-                    boxShadow: '0 12px 32px rgba(6, 182, 212, 0.45)',
                   },
                 }}
-              >
-                <BusinessIcon sx={{ color: '#0f172a', fontSize: 26 }} />
-              </Box>
+              />
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
                   <Typography

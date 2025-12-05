@@ -138,7 +138,7 @@ const LoginPage: React.FC = () => {
                         {/* Logo */}
                         <Box
                               component="img"
-                              src={`${import.meta.env.BASE_URL}logo.jpg`}
+                              src={`${import.meta.env.BASE_URL}logo.png`}
                               alt="PRO PIPE|STEEL Logo"
                               sx={{
                                     width: 160,
@@ -197,10 +197,8 @@ const LoginPage: React.FC = () => {
                                     sx={{
                                           fontSize: '3.5rem',
                                           fontWeight: 700,
-                                          background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)',
-                                          backgroundClip: 'text',
-                                          WebkitBackgroundClip: 'text',
-                                          WebkitTextFillColor: 'transparent',
+                                          color: '#1e3a5f',
+                                          textShadow: '0 2px 10px rgba(255,255,255,0.5)',
                                           letterSpacing: '0.05em',
                                     }}
                               >
@@ -261,7 +259,7 @@ const LoginPage: React.FC = () => {
                         >
                               <Box
                                     component="img"
-                                    src={`${import.meta.env.BASE_URL}logo.jpg`}
+                                    src={`${import.meta.env.BASE_URL}logo.png`}
                                     alt="PRO PIPE|STEEL Logo"
                                     sx={{
                                           width: 100,

@@ -3,21 +3,121 @@ import {
   addDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   doc,
   query,
   where,
   orderBy,
+  limit,
   Timestamp,
   serverTimestamp,
   getDoc,
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import type { Project, ProjectStatement, StatementLine } from '../types';
+import type { Project, ProjectStatement, StatementLine, ProjectHistoryEntry, StatementHistoryEntry } from '../types';
 
 const PROJECTS_COLLECTION = 'projects';
 const STATEMENTS_COLLECTION = 'project_statements';
 const LINES_SUBCOLLECTION = 'statement_lines';
+
+// ==================== HISTORY FUNCTIONS ====================
+
+// Add history entry for project changes
+export const addProjectHistoryEntry = async (
+  projectId: string,
+  previousData: Project,
+  user: { uid: string; email?: string | null; displayName?: string | null },
+  changeType: 'UPDATE' | 'DELETE' | 'REVERT'
+): Promise<void> => {
+  try {
+    const historyRef = collection(db, PROJECTS_COLLECTION, projectId, 'history');
+    await addDoc(historyRef, {
+      projectId,
+      previousData,
+      changedAt: Timestamp.now(),
+      changedByUserId: user.uid,
+      changedByEmail: user.email || null,
+      changedByDisplayName: user.displayName || null,
+      changeType,
+    });
+  } catch (error) {
+    console.error('Error adding project history entry:', error);
+    // History hatası ana işlemi durdurmamalı
+  }
+};
+
+// Get project history
+export const getProjectHistory = async (projectId: string): Promise<ProjectHistoryEntry[]> => {
+  try {
+    const historyRef = collection(db, PROJECTS_COLLECTION, projectId, 'history');
+    const q = query(historyRef, orderBy('changedAt', 'desc'), limit(10));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    } as ProjectHistoryEntry));
+  } catch (error) {
+    console.error('Error fetching project history:', error);
+    return [];
+  }
+};
+
+// Add history entry for statement changes (synchronized with web)
+export const addStatementHistoryEntry = async (
+  statementId: string,
+  previousData: ProjectStatement | StatementLine | null,
+  user: { uid: string; email?: string | null; displayName?: string | null },
+  changeType: StatementHistoryEntry['changeType'],
+  lineInfo?: {
+    lineId?: string;
+    description?: string;
+    amount?: number;
+    direction?: 'INCOME' | 'EXPENSE';
+    newData?: StatementLine;
+  }
+): Promise<void> => {
+  try {
+    const historyRef = collection(db, STATEMENTS_COLLECTION, statementId, 'history');
+
+    const historyData: Record<string, unknown> = {
+      statementId,
+      changedAt: Timestamp.now(),
+      changedByUserId: user.uid,
+      changeType,
+    };
+
+    if (previousData) historyData.previousData = previousData;
+    if (user.email) historyData.changedByEmail = user.email;
+    if (user.displayName) historyData.changedByDisplayName = user.displayName;
+    if (lineInfo?.lineId) historyData.lineId = lineInfo.lineId;
+    if (lineInfo?.description) historyData.lineDescription = lineInfo.description;
+    if (lineInfo?.amount !== undefined) historyData.lineAmount = lineInfo.amount;
+    if (lineInfo?.direction) historyData.lineDirection = lineInfo.direction;
+    if (lineInfo?.newData) historyData.newData = lineInfo.newData;
+
+    await addDoc(historyRef, historyData);
+  } catch (error) {
+    console.error('Error adding statement history entry:', error);
+    // History hatası ana işlemi durdurmamalı
+  }
+};
+
+// Get statement history
+export const getStatementHistory = async (statementId: string): Promise<StatementHistoryEntry[]> => {
+  try {
+    const historyRef = collection(db, STATEMENTS_COLLECTION, statementId, 'history');
+    const q = query(historyRef, orderBy('changedAt', 'desc'), limit(50));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    } as StatementHistoryEntry));
+  } catch (error) {
+    console.error('Error fetching statement history:', error);
+    return [];
+  }
+};
 
 // ==================== Projects ====================
 
@@ -79,6 +179,8 @@ export const updateProject = async (
       ...data,
       updatedAt: serverTimestamp(),
       updatedBy: user?.uid,
+      updatedByEmail: user?.email,
+      updatedByDisplayName: user?.displayName,
     });
   } catch (error) {
     console.error('Error updating project:', error);
@@ -149,6 +251,8 @@ export const createStatement = async (
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       createdBy: user?.uid,
+      createdByEmail: user?.email,
+      createdByDisplayName: user?.displayName,
     };
     const docRef = await addDoc(collection(db, STATEMENTS_COLLECTION), statementData);
     return docRef.id;
@@ -165,30 +269,58 @@ export const updateStatement = async (
 ): Promise<void> => {
   try {
     const docRef = doc(db, STATEMENTS_COLLECTION, statementId);
-    await updateDoc(docRef, {
+
+    const updateData: any = {
       ...updates,
       updatedAt: serverTimestamp(),
-      updatedBy: user?.uid,
-    });
+    };
+
+    if (user) {
+      updateData.updatedBy = user.uid;
+      updateData.updatedByEmail = user.email;
+      updateData.updatedByDisplayName = user.displayName;
+    }
+
+    await updateDoc(docRef, updateData);
   } catch (error) {
     console.error('Error updating statement:', error);
     throw error;
   }
 };
 
+// Delete statement (only DRAFT)
+export const deleteStatement = async (statementId: string): Promise<void> => {
+  try {
+    const statement = await getStatementById(statementId);
+    if (statement && statement.status === 'CLOSED') {
+      throw new Error('Kapalı dönem silinemez');
+    }
+    const docRef = doc(db, STATEMENTS_COLLECTION, statementId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting statement:', error);
+    throw error;
+  }
+};
+
 // ==================== Statement Lines ====================
 
+// Get statement lines (filter out soft-deleted for backward compatibility)
 export const getStatementLines = async (statementId: string): Promise<StatementLine[]> => {
   try {
     const q = query(collection(db, STATEMENTS_COLLECTION, statementId, LINES_SUBCOLLECTION));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StatementLine));
+    const allLines = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StatementLine));
+
+    // Filter out soft-deleted lines (for backward compatibility with old soft-deleted data)
+    return allLines.filter(line => !line.isDeleted);
   } catch (error) {
     console.error('Error fetching lines:', error);
     throw error;
   }
 };
 
+// Create statement line (with history - synchronized with web)
 export const createStatementLine = async (
   statementId: string,
   data: Omit<StatementLine, 'id' | 'statementId' | 'createdAt' | 'updatedAt'>,
@@ -206,6 +338,16 @@ export const createStatementLine = async (
       lineData
     );
 
+    // Add history entry for line creation (synchronized with web)
+    if (user) {
+      await addStatementHistoryEntry(statementId, null, user, 'LINE_ADD', {
+        lineId: docRef.id,
+        description: data.description,
+        amount: data.amount,
+        direction: data.direction,
+      });
+    }
+
     // Recalculate totals
     await recalculateStatementTotals(statementId, user);
 
@@ -216,6 +358,7 @@ export const createStatementLine = async (
   }
 };
 
+// Update statement line (with history - synchronized with web)
 export const updateStatementLine = async (
   statementId: string,
   lineId: string,
@@ -224,10 +367,25 @@ export const updateStatementLine = async (
 ): Promise<void> => {
   try {
     const docRef = doc(db, STATEMENTS_COLLECTION, statementId, LINES_SUBCOLLECTION, lineId);
+
+    // Get previous data for history
+    const previousDoc = await getDoc(docRef);
+    const previousData = previousDoc.exists() ? { id: previousDoc.id, ...previousDoc.data() } as StatementLine : null;
+
     await updateDoc(docRef, {
       ...updates,
       updatedAt: serverTimestamp(),
     });
+
+    // Add history entry for line update (synchronized with web)
+    if (user && previousData) {
+      await addStatementHistoryEntry(statementId, previousData, user, 'LINE_UPDATE', {
+        lineId,
+        description: updates.description || previousData.description,
+        amount: updates.amount !== undefined ? updates.amount : previousData.amount,
+        direction: updates.direction || previousData.direction,
+      });
+    }
 
     // Recalculate totals
     await recalculateStatementTotals(statementId, user);
@@ -237,6 +395,7 @@ export const updateStatementLine = async (
   }
 };
 
+// Delete statement line - HARD DELETE (synchronized with web)
 export const deleteStatementLine = async (
   statementId: string,
   lineId: string,
@@ -244,8 +403,23 @@ export const deleteStatementLine = async (
 ): Promise<void> => {
   try {
     const docRef = doc(db, STATEMENTS_COLLECTION, statementId, LINES_SUBCOLLECTION, lineId);
-    // Soft delete or actual delete
-    await updateDoc(docRef, { isDeleted: true });
+
+    // Get previous data for history
+    const previousDoc = await getDoc(docRef);
+    const previousData = previousDoc.exists() ? { id: previousDoc.id, ...previousDoc.data() } as StatementLine : null;
+
+    // HARD DELETE - synchronized with web behavior
+    await deleteDoc(docRef);
+
+    // Add history entry for line deletion (synchronized with web)
+    if (user && previousData) {
+      await addStatementHistoryEntry(statementId, previousData, user, 'LINE_DELETE', {
+        lineId,
+        description: previousData.description,
+        amount: previousData.amount,
+        direction: previousData.direction,
+      });
+    }
 
     // Recalculate totals
     await recalculateStatementTotals(statementId, user);
@@ -262,6 +436,7 @@ export const recalculateStatementTotals = async (
   user?: { uid: string; email?: string; displayName?: string }
 ): Promise<void> => {
   try {
+    // getStatementLines already filters out isDeleted lines
     const lines = await getStatementLines(statementId);
 
     let totalIncome = 0;
@@ -280,10 +455,11 @@ export const recalculateStatementTotals = async (
       }
     });
 
+    // Net Result = Income - (Paid + Unpaid) - synchronized with web
     const netCashReal = totalIncome - (totalExpensePaid + totalExpenseUnpaid);
 
     const statement = await getStatementById(statementId);
-    if (!statement) throw new Error('Statement not found');
+    if (!statement) throw new Error('Statement not found during recalculation');
 
     const finalBalance = statement.previousBalance + netCashReal;
 
@@ -297,7 +473,7 @@ export const recalculateStatementTotals = async (
       finalBalance,
     }, user);
 
-    // Update project balance if DRAFT
+    // SYNC PROJECT BALANCE: Update project's currentBalance with the latest finalBalance
     if (statement.projectId && statement.status === 'DRAFT') {
       const projectRef = doc(db, PROJECTS_COLLECTION, statement.projectId);
       await updateDoc(projectRef, {
@@ -340,6 +516,9 @@ export const closeStatement = async (
     let newProjectBalance = 0;
     if (action === 'CARRIED_OVER') {
       newProjectBalance = finalBalance;
+    } else if (action === 'TRANSFERRED_TO_SAFE') {
+      newProjectBalance = 0;
+      // TODO: Create safe transaction record here if needed
     }
 
     batch.update(projectRef, {
@@ -348,6 +527,11 @@ export const closeStatement = async (
     });
 
     await batch.commit();
+
+    // Add history entry for closing (synchronized with web)
+    if (user) {
+      await addStatementHistoryEntry(statementId, statement, user, 'CLOSE');
+    }
   } catch (error) {
     console.error('Error closing statement:', error);
     throw error;

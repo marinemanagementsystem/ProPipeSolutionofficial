@@ -3,16 +3,18 @@ import {
   addDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   doc,
   query,
   orderBy,
+  limit,
   Timestamp,
   serverTimestamp,
   getDoc,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
-import type { Expense, ExpenseFormData } from '../types';
+import type { Expense, ExpenseFormData, ExpenseHistoryEntry } from '../types';
 
 const EXPENSES_COLLECTION = 'expenses';
 
@@ -27,6 +29,51 @@ const safeToDate = (timestamp: Timestamp | null | undefined): Date | null => {
     return null;
   }
 };
+
+// ==================== HISTORY FUNCTIONS ====================
+
+// Add history entry for expense changes
+export const addExpenseHistoryEntry = async (
+  expenseId: string,
+  previousData: Expense,
+  user: { uid: string; email?: string | null; displayName?: string | null },
+  changeType: 'UPDATE' | 'DELETE' | 'REVERT'
+): Promise<void> => {
+  try {
+    const historyRef = collection(db, EXPENSES_COLLECTION, expenseId, 'history');
+    const historyEntry: Omit<ExpenseHistoryEntry, 'id'> = {
+      expenseId,
+      previousData,
+      changedAt: Timestamp.now(),
+      changedByUserId: user.uid,
+      changedByEmail: user.email || undefined,
+      changedByDisplayName: user.displayName || undefined,
+      changeType,
+    };
+    await addDoc(historyRef, historyEntry);
+  } catch (error) {
+    console.error('Error adding expense history entry:', error);
+    // History hatası ana işlemi durdurmamalı, sadece logluyoruz.
+  }
+};
+
+// Get expense history
+export const getExpenseHistory = async (expenseId: string): Promise<ExpenseHistoryEntry[]> => {
+  try {
+    const historyRef = collection(db, EXPENSES_COLLECTION, expenseId, 'history');
+    const q = query(historyRef, orderBy('changedAt', 'desc'), limit(10));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data(),
+    } as ExpenseHistoryEntry));
+  } catch (error) {
+    console.error('Error fetching expense history:', error);
+    return [];
+  }
+};
+
+// ==================== CRUD OPERATIONS ====================
 
 // Get all expenses with filters
 export const getExpenses = async (
@@ -88,6 +135,21 @@ export const getExpenses = async (
   }
 };
 
+// Get expense by ID
+export const getExpenseById = async (id: string): Promise<Expense | null> => {
+  try {
+    const docRef = doc(db, EXPENSES_COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as Expense;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching expense:', error);
+    throw error;
+  }
+};
+
 // Create expense
 export const createExpense = async (
   data: ExpenseFormData,
@@ -128,7 +190,7 @@ export const createExpense = async (
   }
 };
 
-// Update expense
+// Update expense (with history - synchronized with web)
 export const updateExpense = async (
   id: string,
   data: Partial<ExpenseFormData>,
@@ -136,6 +198,18 @@ export const updateExpense = async (
 ): Promise<void> => {
   try {
     const expenseRef = doc(db, EXPENSES_COLLECTION, id);
+    const expenseSnap = await getDoc(expenseRef);
+
+    if (!expenseSnap.exists()) {
+      throw new Error('Expense not found');
+    }
+
+    const currentData = { id: expenseSnap.id, ...expenseSnap.data() } as Expense;
+
+    // History Kaydı - UPDATE öncesi mevcut veriyi kaydet
+    if (user) {
+      await addExpenseHistoryEntry(id, currentData, user, 'UPDATE');
+    }
 
     const updates: any = {
       updatedAt: serverTimestamp(),
@@ -167,14 +241,27 @@ export const updateExpense = async (
   }
 };
 
-// Soft delete expense
+// Soft delete expense (with history - synchronized with web)
 export const deleteExpense = async (
   id: string,
   user?: { uid: string; email?: string | null; displayName?: string | null }
 ): Promise<void> => {
   try {
     const expenseRef = doc(db, EXPENSES_COLLECTION, id);
+    const expenseSnap = await getDoc(expenseRef);
 
+    if (!expenseSnap.exists()) {
+      throw new Error('Expense not found');
+    }
+
+    const currentData = { id: expenseSnap.id, ...expenseSnap.data() } as Expense;
+
+    // History Kaydı - DELETE öncesi mevcut veriyi kaydet
+    if (user) {
+      await addExpenseHistoryEntry(id, currentData, user, 'DELETE');
+    }
+
+    // Soft Delete Update
     await updateDoc(expenseRef, {
       isDeleted: true,
       deletedAt: serverTimestamp(),
@@ -190,6 +277,87 @@ export const deleteExpense = async (
   }
 };
 
+// Hard delete expense (permanent)
+export const hardDeleteExpense = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, EXPENSES_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error hard deleting expense:', error);
+    throw error;
+  }
+};
+
+// Revert expense to previous state from history
+export const revertExpenseToHistory = async (
+  expenseId: string,
+  targetHistoryEntry: ExpenseHistoryEntry,
+  user: { uid: string; email?: string | null; displayName?: string | null }
+): Promise<void> => {
+  try {
+    const expenseRef = doc(db, EXPENSES_COLLECTION, expenseId);
+    const expenseSnap = await getDoc(expenseRef);
+
+    if (!expenseSnap.exists()) {
+      throw new Error('Expense not found - cannot revert');
+    }
+
+    const currentData = { id: expenseSnap.id, ...expenseSnap.data() } as Expense;
+
+    // Revert işlemi de bir değişikliktir, history'ye ekle
+    await addExpenseHistoryEntry(expenseId, currentData, user, 'REVERT');
+
+    // Previous Data'yı geri yükle
+    const dataToRestore = targetHistoryEntry.previousData;
+    const { id, createdAt, updatedAt, ...rest } = dataToRestore;
+
+    await updateDoc(expenseRef, {
+      ...rest,
+      updatedAt: serverTimestamp(),
+      updatedBy: user.uid,
+      updatedByEmail: user.email,
+      updatedByDisplayName: user.displayName,
+    });
+  } catch (error) {
+    console.error('Error reverting expense:', error);
+    throw error;
+  }
+};
+
+// Restore soft-deleted expense (simpler version)
+export const revertExpense = async (
+  id: string,
+  user?: { uid: string; email?: string | null; displayName?: string | null }
+): Promise<void> => {
+  try {
+    const expenseRef = doc(db, EXPENSES_COLLECTION, id);
+
+    // Get current data for history
+    const expense = await getExpenseById(id);
+    if (expense && user) {
+      await addExpenseHistoryEntry(id, expense, user, 'REVERT');
+    }
+
+    await updateDoc(expenseRef, {
+      isDeleted: false,
+      deletedAt: null,
+      deletedByUserId: null,
+      deletedByEmail: null,
+      deletedByDisplayName: null,
+      updatedAt: serverTimestamp(),
+      updatedBy: user?.uid || null,
+      updatedByEmail: user?.email || null,
+      updatedByDisplayName: user?.displayName || null,
+    });
+  } catch (error) {
+    console.error('Error reverting expense:', error);
+    throw error;
+  }
+};
+
+// Alias for backward compatibility
+export const restoreExpense = revertExpense;
+
 // Upload receipt image
 const uploadReceipt = async (uri: string): Promise<string> => {
   try {
@@ -203,21 +371,6 @@ const uploadReceipt = async (uri: string): Promise<string> => {
     return downloadURL;
   } catch (error) {
     console.error('Error uploading receipt:', error);
-    throw error;
-  }
-};
-
-// Get expense by ID
-export const getExpenseById = async (id: string): Promise<Expense | null> => {
-  try {
-    const docRef = doc(db, EXPENSES_COLLECTION, id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as Expense;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching expense:', error);
     throw error;
   }
 };

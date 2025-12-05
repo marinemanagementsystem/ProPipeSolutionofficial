@@ -11,7 +11,9 @@
       "Bash(npx expo export:*)",
       "Bash(npx expo install:*)",
       "Bash(npx expo-doctor:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

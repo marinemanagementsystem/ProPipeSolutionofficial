@@ -39,7 +39,7 @@ const ExpenseFormScreen: React.FC<Props> = ({ navigation, route }) => {
   const [status, setStatus] = useState<ExpenseStatus>('PAID');
   const [ownerId, setOwnerId] = useState('');
   const [currency, setCurrency] = useState<Currency>('TRY');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('NAKIT');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
   const [projectId, setProjectId] = useState('');
   const [category, setCategory] = useState('');
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
@@ -271,7 +271,7 @@ const ExpenseFormScreen: React.FC<Props> = ({ navigation, route }) => {
         {/* Payment Method */}
         <Text style={[styles.label, { color: colors.textSecondary }]}>Ödeme Yöntemi</Text>
         <View style={styles.optionRow}>
-          {(['NAKIT', 'HAVALE', 'KREDI_KARTI', 'CEK'] as PaymentMethod[]).map((m) => (
+          {(['CASH', 'TRANSFER', 'CARD'] as PaymentMethod[]).map((m) => (
             <TouchableOpacity
               key={m}
               style={[
@@ -284,7 +284,7 @@ const ExpenseFormScreen: React.FC<Props> = ({ navigation, route }) => {
               onPress={() => setPaymentMethod(m)}
             >
               <Text style={{ color: paymentMethod === m ? '#0f172a' : colors.text, fontSize: 11 }}>
-                {m === 'NAKIT' ? 'Nakit' : m === 'HAVALE' ? 'Havale' : m === 'KREDI_KARTI' ? 'K.Kartı' : 'Çek'}
+                {m === 'CASH' ? 'Nakit' : m === 'TRANSFER' ? 'Havale' : 'Kredi Kartı'}
               </Text>
             </TouchableOpacity>
           ))}

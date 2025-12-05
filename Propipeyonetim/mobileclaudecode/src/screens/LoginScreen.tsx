@@ -33,15 +33,30 @@ const LoginScreen: React.FC = () => {
       setLoading(true);
       await login(email.trim(), password);
     } catch (error: any) {
+      console.error('Login error:', error.code, error.message);
       let message = 'Giriş yapılırken bir hata oluştu.';
-      if (error.code === 'auth/user-not-found') {
-        message = 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.';
-      } else if (error.code === 'auth/wrong-password') {
-        message = 'Şifre hatalı.';
-      } else if (error.code === 'auth/invalid-email') {
-        message = 'Geçersiz e-posta adresi.';
-      } else if (error.code === 'auth/too-many-requests') {
-        message = 'Çok fazla başarısız deneme. Lütfen daha sonra tekrar deneyin.';
+
+      switch (error.code) {
+        case 'auth/user-not-found':
+          message = 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.';
+          break;
+        case 'auth/wrong-password':
+          message = 'Şifre hatalı.';
+          break;
+        case 'auth/invalid-email':
+          message = 'Geçersiz e-posta adresi.';
+          break;
+        case 'auth/invalid-credential':
+          message = 'E-posta veya şifre hatalı.';
+          break;
+        case 'auth/too-many-requests':
+          message = 'Çok fazla başarısız deneme. Lütfen daha sonra tekrar deneyin.';
+          break;
+        case 'auth/network-request-failed':
+          message = 'İnternet bağlantınızı kontrol edin.';
+          break;
+        default:
+          message = `Hata: ${error.code || error.message}`;
       }
       Alert.alert('Giriş Hatası', message);
     } finally {

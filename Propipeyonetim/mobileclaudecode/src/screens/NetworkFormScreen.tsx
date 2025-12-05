@@ -33,7 +33,7 @@ const NetworkFormScreen: React.FC<Props> = ({ navigation, route }) => {
   const [category, setCategory] = useState<ContactCategory>('YENI_INSA');
   const [serviceArea, setServiceArea] = useState('');
   const [shipType, setShipType] = useState('');
-  const [contactStatus, setContactStatus] = useState<ContactStatus>('ILK_TEMAS');
+  const [contactStatus, setContactStatus] = useState<ContactStatus>('ULASILDI');
   const [quoteStatus, setQuoteStatus] = useState<QuoteStatus>('HAYIR');
   const [result, setResult] = useState<ContactResult | undefined>();
   const [notes, setNotes] = useState('');
@@ -144,8 +144,8 @@ const NetworkFormScreen: React.FC<Props> = ({ navigation, route }) => {
   ];
 
   const results: { value: ContactResult; label: string }[] = [
-    { value: 'DEVAM_EDIYOR', label: 'Devam' },
-    { value: 'IS_ALINDI', label: 'İş Alındı' },
+    { value: 'BEKLEMEDE', label: 'Beklemede' },
+    { value: 'KAZANILDI', label: 'Kazanıldı' },
     { value: 'RED', label: 'Red' },
     { value: 'IS_YOK', label: 'İş Yok' },
     { value: 'DONUS_YOK', label: 'Dönüş Yok' },
@@ -242,8 +242,8 @@ const NetworkFormScreen: React.FC<Props> = ({ navigation, route }) => {
               style={[
                 styles.optionButton,
                 {
-                  backgroundColor: result === r.value ? (r.value === 'IS_ALINDI' ? colors.success : r.value === 'RED' ? colors.error : colors.warning) : colors.surfaceVariant,
-                  borderColor: result === r.value ? (r.value === 'IS_ALINDI' ? colors.success : r.value === 'RED' ? colors.error : colors.warning) : colors.border,
+                  backgroundColor: result === r.value ? (r.value === 'KAZANILDI' ? colors.success : r.value === 'RED' ? colors.error : colors.warning) : colors.surfaceVariant,
+                  borderColor: result === r.value ? (r.value === 'KAZANILDI' ? colors.success : r.value === 'RED' ? colors.error : colors.warning) : colors.border,
                 },
               ]}
               onPress={() => setResult(result === r.value ? undefined : r.value)}
