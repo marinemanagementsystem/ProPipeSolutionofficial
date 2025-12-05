@@ -8,17 +8,22 @@ Communicate in Turkish (Türkçe iletişim kur).
 
 ## Repository Structure
 
-This is a monorepo containing three projects:
+This is a monorepo containing the Pro Pipe Solution projects:
 
-- **Propipeyonetim/** - Main management system (web + mobile) for pipe/equipment management
-- **Resmi/** - Official company website (static HTML/CSS/JS)
-- **uretim/** - Production tracking system (Propipe Üretim Takip Sistemi)
+```
+propipe-solutions/
+├── management/
+│   ├── web/              # Yönetim paneli web uygulaması (React + Vite)
+│   └── mobile/           # Yönetim paneli mobil uygulama (React Native + Expo)
+├── website/              # propipesolution.com resmi sitesi (statik HTML/CSS/JS)
+└── CLAUDE.md
+```
 
 ## Development Commands
 
-### Propipeyonetim Web (React + Vite + TypeScript)
+### Management Web (React + Vite + TypeScript)
 ```bash
-cd Propipeyonetim
+cd management/web
 npm install
 npm run dev        # Dev server at http://localhost:5173
 npm run build      # Production build (tsc -b && vite build)
@@ -26,9 +31,9 @@ npm run lint       # ESLint check
 npm run preview    # Preview production build
 ```
 
-### Propipeyonetim Mobile (React Native + Expo)
+### Management Mobile (React Native + Expo)
 ```bash
-cd Propipeyonetim/mobile
+cd management/mobile
 npm install
 npm start          # Start Expo server
 npm run android    # Run on Android emulator/device
@@ -40,33 +45,17 @@ APK build with EAS:
 eas build -p android --profile preview
 ```
 
-### Uretim Web
-```bash
-cd uretim/web
-npm install
-npm run dev        # Dev server at http://localhost:5173
-npm run build
-npm run lint
-```
-
-### Uretim Mobile
-```bash
-cd uretim/mobile
-npm install
-npm start
-npm run android
-```
-
-### Resmi (Official Website)
+### Website (Official Site)
 Static site - no build process. Deployed via FTP to `ftp.propipesolution.com:21`.
+FTP details in `website/Propipesiteyonetim.md`.
 
 ## Architecture
 
 ### Tech Stack
-- **Web**: React 19, TypeScript, Vite, Material-UI (Propipeyonetim) / Tailwind CSS (uretim)
+- **Web**: React 19, TypeScript, Vite, Material-UI
 - **Mobile**: React Native, Expo, React Navigation
 - **Backend**: Firebase (Firestore, Authentication)
-- **Styling**: Emotion CSS-in-JS (Propipeyonetim), Tailwind (uretim)
+- **Styling**: Emotion CSS-in-JS (web)
 
 ### State Management
 - Context API for auth (`AuthContext`) and theme (`ThemeContext`)
@@ -89,7 +78,7 @@ Static site - no build process. Deployed via FTP to `ftp.propipesolution.com:21`
 
 ## Project-Specific Notes
 
-### Propipeyonetim Web Pages
+### Management Web Pages
 - `/dashboard` - Main overview with KPIs
 - `/expenses` - Expense management
 - `/projects` - Project listing
@@ -99,3 +88,8 @@ Static site - no build process. Deployed via FTP to `ftp.propipesolution.com:21`
 
 ### Mobile Navigation
 Tab-based navigation with: Home, Expenses, Network, Profile, Projects screens.
+
+### Deployments
+- **Web**: propipesolution.com/yonetim/ (FTP deploy)
+- **Website**: propipesolution.com (FTP deploy)
+- **Mobile**: APK via EAS Build

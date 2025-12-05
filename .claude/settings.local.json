@@ -13,7 +13,9 @@
       "Bash(dir /b \"c:\\dev\\PPSSofficial\\Propipeyonetim\\src\\types\")",
       "Bash(dir \"c:\\dev\\PPSSofficial\\Propipeyonetim\\public\")",
       "Bash(copy \"c:\\dev\\PPSSofficial\\Propipeyonetim\\mobileclaudecode\\logo.png\" \"c:\\dev\\PPSSofficial\\Propipeyonetim\\public\\logo.png\")",
-      "Bash(dir \"c:\\dev\\PPSSofficial\\Resmi\")"
+      "Bash(dir \"c:\\dev\\PPSSofficial\\Resmi\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\nWeb-Mobile senkronizasyonu ve logo güncellemesi\n\n- Mobile enum değerleri web ile eşitlendi (PaymentMethod, UserRole, ContactStatus, ResultStatus)\n- Mobile servislere tam history desteği eklendi (expenses, network, partners, projects)\n- Statement line silme davranışı web ile hizalandı (hard delete)\n- Web''de logo.png kullanımı eklendi\n- Login sayfasında STEEL yazısı okunabilir hale getirildi\n- Eski mobile klasörleri temizlendi (mobile, mobileclaude, mobileold)\n- Uretim klasörü kaldırıldı\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []
